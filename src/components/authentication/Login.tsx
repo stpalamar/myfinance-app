@@ -7,6 +7,7 @@ import { AxiosError } from 'axios';
 
 import { login } from '../../services/auth.service';
 import useAuth from '../../hooks/useAuth';
+import { Auth } from '../../context/AuthProvider';
 
 import CustomInput from '../UI/CustomInput';
 
@@ -18,7 +19,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 const Login = () => {
-  const { setAuth, persist, setPersist } = useAuth();
+  const { setAuth, auth, persist, setPersist } = useAuth();
 
   const navigate = useNavigate();
 
@@ -44,8 +45,7 @@ const Login = () => {
 
       const response = await login(values.email, values.password);
       const { firstName, lastName, email, accessToken } = response;
-      setAuth({ firstName, lastName, email, accessToken });
-
+      setAuth({ firstName, lastName, email, accessToken } as Auth);
       actions.resetForm({ values: { email: '', password: '' } });
 
       setErrMessage('');
