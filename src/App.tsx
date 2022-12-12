@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route } from 'react-router-dom';
 
-function App() {
+import MainLayout from './layouts/MainLayout';
+
+import './App.css';
+import AccountsPage from './components/AccountsPage';
+import TransactionsPage from './components/TransactionsPage';
+import AnalyticsPage from './components/AnalyticsPage';
+import ImportPage from './components/ImportPage';
+import Signup from './components/authentication/Signup';
+import Login from './components/authentication/Login';
+import PersistLogin from './components/PersistLogin';
+import RequireAuth from './components/RequireAuth';
+
+const App = () => {
+  document.title = 'MyFinance';
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Routes>
+        {/* public routes */}
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* protected routes */}
+        <Route element={<PersistLogin />}>
+          <Route element={<RequireAuth />}>
+            <Route path="/" element={<MainLayout />}>
+              <Route path="/accounts" element={<AccountsPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/import" element={<ImportPage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* catch all */}
+      </Routes>
     </div>
   );
-}
+};
 
 export default App;
