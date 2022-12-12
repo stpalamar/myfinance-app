@@ -1,6 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
+import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
+
 import useRefreshToken from '../hooks/useRefreshToken';
 import useAuth from '../hooks/useAuth';
 
@@ -14,6 +16,7 @@ const PersistLogin = () => {
 
     const verifyRefreshToken = async () => {
       try {
+        setIsLoading(true);
         await refresh();
       } catch (err) {
         console.error(err);
@@ -33,7 +36,15 @@ const PersistLogin = () => {
   }, [isLoading]);
 
   return (
-    <>{!persist ? <Outlet /> : isLoading ? <p>Loading...</p> : <Outlet />}</>
+    <>
+      {!persist ? (
+        <Outlet />
+      ) : isLoading ? (
+        <LoadingSpinnerCenter />
+      ) : (
+        <Outlet />
+      )}
+    </>
   );
 };
 
