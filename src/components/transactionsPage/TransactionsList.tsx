@@ -1,25 +1,28 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 
 import Transaction from '../../types/Transaction.type';
 
 import TransactionItem from './TransactionItem';
+import SelectTransactionsCheckbox from '../UI/SelectTransactionsCheckbox';
 
 import Stack from 'react-bootstrap/Stack';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
+export const SELECT_STATES = {
+  All: 'Checked',
+  Multiple: 'Indeterminate',
+  None: 'Empty',
+};
+
 type Props = {
   list: Transaction[];
 };
 
 const TransactionsList = ({ list }: Props) => {
-  const [isSelectedAll, setIsSelectedAll] = useState<boolean>(false);
-
+  const [isSelectedAll, setIsSelectedAll] = useState(SELECT_STATES.None);
   const [isSelected, setIsSelected] = useState<Transaction[]>([]);
-
-  const [selectedTransactions, setSelectedTransactions] =
-    useState<Transaction[]>();
 
   const calculateSum = (transactions: Transaction[]) => {
     let sum = 0;
@@ -34,19 +37,34 @@ const TransactionsList = ({ list }: Props) => {
   const transactionsSum: any = useMemo(() => calculateSum(list), [list]);
 
   const handleSelectAll = () => {
-    setIsSelectedAll(!isSelectedAll);
-    setIsSelected(list);
-    if (isSelectedAll) {
+    let newState;
+
+    if (isSelectedAll === SELECT_STATES.None) {
+      newState = SELECT_STATES.All;
+      setIsSelected(list);
+    } else if (isSelectedAll === SELECT_STATES.All) {
+      newState = SELECT_STATES.None;
+      setIsSelected([]);
+    } else if (isSelectedAll === SELECT_STATES.Multiple) {
+      newState = SELECT_STATES.None;
       setIsSelected([]);
     }
+
+    setIsSelectedAll(newState as string);
   };
 
   const handleSelect = (e: any) => {
     const { id, checked } = e.target;
     const transaction = list.find((i) => i.id === id);
+
+    setIsSelectedAll(SELECT_STATES.Multiple);
     setIsSelected([...isSelected, transaction!]);
     if (!checked) {
-      setIsSelectedAll(false);
+      setIsSelectedAll(SELECT_STATES.Multiple);
+      setIsSelected(isSelected.filter((t) => t.id !== transaction!.id));
+    }
+    if (!checked && isSelected.length === 1) {
+      setIsSelectedAll(SELECT_STATES.None);
       setIsSelected(isSelected.filter((t) => t.id !== transaction!.id));
     }
   };
@@ -56,10 +74,15 @@ const TransactionsList = ({ list }: Props) => {
       <Card>
         <Card.Header className="d-flex">
           <Container className="d-flex mx-0 px-0">
-            <Form.Check
+            {/* <Form.Check
               type="checkbox"
               label="Select all"
-              checked={isSelectedAll}
+              ref={checkRef}
+              // checked={isSelectedAll}
+              onChange={handleSelectAll}
+            /> */}
+            <SelectTransactionsCheckbox
+              value={isSelectedAll}
               onChange={handleSelectAll}
             />
           </Container>
