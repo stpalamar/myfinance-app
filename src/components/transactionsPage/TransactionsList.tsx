@@ -1,14 +1,15 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 import Transaction from '../../types/Transaction.type';
 
 import TransactionItem from './TransactionItem';
+import TransactionsGroupByDate from './TransactionsGroupByDate';
 import SelectTransactionsCheckbox from '../UI/SelectTransactionsCheckbox';
 
 import Stack from 'react-bootstrap/Stack';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
+import { AnyCnameRecord } from 'dns';
 
 export const SELECT_STATES = {
   All: 'Checked',
@@ -18,9 +19,10 @@ export const SELECT_STATES = {
 
 type Props = {
   list: Transaction[];
+  sortBy: string;
 };
 
-const TransactionsList = ({ list }: Props) => {
+const TransactionsList = ({ list, sortBy }: Props) => {
   const [isSelectedAll, setIsSelectedAll] = useState(SELECT_STATES.None);
   const [isSelected, setIsSelected] = useState<Transaction[]>([]);
 
@@ -34,7 +36,15 @@ const TransactionsList = ({ list }: Props) => {
     return sum;
   };
 
-  const transactionsSum: any = useMemo(() => calculateSum(list), [list]);
+  useEffect(() => {
+    setIsSelectedAll(SELECT_STATES.None);
+    setIsSelected([]);
+  }, [sortBy]);
+
+  const transactionsSum: any = useMemo(
+    () => (isSelected.length ? calculateSum(isSelected) : calculateSum(list)),
+    [isSelected, list]
+  );
 
   const handleSelectAll = () => {
     let newState;
@@ -71,16 +81,9 @@ const TransactionsList = ({ list }: Props) => {
 
   return (
     <Container>
-      <Card>
+      <Card bg={isSelected.length ? 'warning' : ''}>
         <Card.Header className="d-flex">
           <Container className="d-flex mx-0 px-0">
-            {/* <Form.Check
-              type="checkbox"
-              label="Select all"
-              ref={checkRef}
-              // checked={isSelectedAll}
-              onChange={handleSelectAll}
-            /> */}
             <SelectTransactionsCheckbox
               value={isSelectedAll}
               onChange={handleSelectAll}
@@ -95,17 +98,25 @@ const TransactionsList = ({ list }: Props) => {
           </Container>
         </Card.Header>
       </Card>
-      <Stack gap={2}>
-        {list.map((transaction) => {
-          return (
-            <TransactionItem
-              key={transaction.id}
-              transaction={transaction}
-              handleSelect={handleSelect}
-              isSelected={isSelected.includes(transaction)}
-            />
-          );
-        })}
+      <Stack gap={2} className="mt-3">
+        {sortBy === 'amount-DESC' || sortBy === 'amount-ASC' ? (
+          list.map((transaction) => {
+            return (
+              <TransactionItem
+                key={transaction.id}
+                transaction={transaction}
+                handleSelect={handleSelect}
+                isSelected={isSelected.includes(transaction)}
+              />
+            );
+          })
+        ) : (
+          <TransactionsGroupByDate
+            list={list}
+            handleSelect={handleSelect}
+            isSelected={isSelected}
+          />
+        )}
       </Stack>
     </Container>
   );

@@ -4,17 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { getTransactions } from '../services/transactions.service';
 
+import Transaction from '../types/Transaction.type';
+
 import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
 
 import TransactionsList from './transactionsPage/TransactionsList';
 
 import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
 
 const TransactionsPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errMessage, setErrMessage] = useState<string>('');
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [sortBy, setSortBy] = useState<string>('date-DESC');
 
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
@@ -25,8 +29,12 @@ const TransactionsPage = () => {
     setLoading(true);
     const fetchTransctions = async () => {
       try {
-        const response = await getTransactions(axiosPrivate, controller);
+        const response = (await getTransactions(
+          axiosPrivate,
+          controller
+        )) as Transaction[];
         setLoading(false);
+        response.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
         setTransactions(response);
       } catch (err) {
         setErrMessage('Error fetching transactions');
@@ -41,6 +49,31 @@ const TransactionsPage = () => {
     };
   }, []);
 
+  const handleSelectSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortBy(e.target.value);
+    const [sort, order] = e.target.value.split('-');
+    const sortedTransactions = [...transactions] as Transaction[];
+
+    if (sort === 'date') {
+      sortedTransactions.sort((a, b) => {
+        if (order === 'ASC') {
+          return Date.parse(a.date) - Date.parse(b.date);
+        } else {
+          return Date.parse(b.date) - Date.parse(a.date);
+        }
+      });
+    } else if (sort === 'amount') {
+      sortedTransactions.sort((a, b) => {
+        if (order === 'ASC') {
+          return a.amount - b.amount;
+        } else {
+          return b.amount - a.amount;
+        }
+      });
+    }
+    setTransactions(sortedTransactions);
+  };
+
   return (
     <>
       {loading ? (
@@ -50,9 +83,16 @@ const TransactionsPage = () => {
       ) : (
         <>
           <Container className="d-flex my-4 justify-content-center">
-            Sorting features...
+            <div className="d-flex ms-auto">
+              <Form.Select onChange={handleSelectSort} value={sortBy}>
+                <option value="date-DESC">Time (newest first)</option>
+                <option value="date-ASC">Time (olders first)</option>
+                <option value="amount-ASC">Amount (lowest first)</option>
+                <option value="amount-DESC">Amount (highest first)</option>
+              </Form.Select>
+            </div>
           </Container>
-          <TransactionsList list={transactions} />
+          <TransactionsList list={transactions} sortBy={sortBy} />
         </>
       )}
     </>
