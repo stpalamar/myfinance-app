@@ -23,7 +23,7 @@ const TransactionItem = ({ transaction, isSelected, handleSelect }: Props) => {
 
   return (
     <>
-      <Card>
+      <Card className="transaction-card">
         <Card.Body className="d-flex">
           <Form.Check
             key={transaction.id}

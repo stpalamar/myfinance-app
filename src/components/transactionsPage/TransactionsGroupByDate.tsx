@@ -1,6 +1,8 @@
 import Transaction from '../../types/Transaction.type';
 import TransactionItem from './TransactionItem';
 
+import { calculateSum } from './TransactionsList';
+
 import Stack from 'react-bootstrap/Stack';
 
 type Props = {
@@ -54,12 +56,22 @@ const TransactionsGroupByDate = ({ list, handleSelect, isSelected }: Props) => {
       {groupDates.map((group: any, index) => {
         return (
           <>
-            <div key={index} className="d-flex m-3">
-              {getDate(group.date)}
+            <div className="d-flex justify-content-between mt-3 mx-3">
+              <div key={index} className="d-flex">
+                <span className="fw-semibold text-body">
+                  {getDate(group.date)}
+                </span>
+              </div>
+              <div className="d-flex">
+                <span className="fw-semibold transactions-sum mx-3 px-1">
+                  {calculateSum(group.transactions)}
+                </span>
+              </div>
             </div>
+
             {group.transactions.map((transaction: Transaction) => {
               return (
-                <Stack gap={2} className="mt-3">
+                <Stack className="mt-2">
                   <TransactionItem
                     key={transaction.id}
                     transaction={transaction}

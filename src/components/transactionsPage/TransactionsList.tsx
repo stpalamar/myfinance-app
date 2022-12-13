@@ -9,12 +9,21 @@ import SelectTransactionsCheckbox from '../UI/SelectTransactionsCheckbox';
 import Stack from 'react-bootstrap/Stack';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
-import { AnyCnameRecord } from 'dns';
 
 export const SELECT_STATES = {
   All: 'Checked',
   Multiple: 'Indeterminate',
   None: 'Empty',
+};
+
+export const calculateSum = (transactions: Transaction[]) => {
+  let sum = 0;
+  transactions.forEach((transaction) => {
+    transaction.type
+      ? (sum += transaction.amount)
+      : (sum -= transaction.amount);
+  });
+  return sum;
 };
 
 type Props = {
@@ -25,16 +34,6 @@ type Props = {
 const TransactionsList = ({ list, sortBy }: Props) => {
   const [isSelectedAll, setIsSelectedAll] = useState(SELECT_STATES.None);
   const [isSelected, setIsSelected] = useState<Transaction[]>([]);
-
-  const calculateSum = (transactions: Transaction[]) => {
-    let sum = 0;
-    transactions.forEach((transaction) => {
-      transaction.type
-        ? (sum += transaction.amount)
-        : (sum -= transaction.amount);
-    });
-    return sum;
-  };
 
   useEffect(() => {
     setIsSelectedAll(SELECT_STATES.None);
