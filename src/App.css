@@ -7,3 +7,20 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.transaction-description {
+  font-size: 12px;
+  color: #7f8fa4;
+}
+
+.transaction-expense {
+  color: #fe3b2c;
+}
+
+.transaction-income {
+  color: #21cb87;
+}
+
+.transactions-sum {
+  color: #7f8fa4;
+}

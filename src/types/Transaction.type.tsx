@@ -5,5 +5,6 @@ export default interface Transaction {
   type: number;
   amount: number;
   accountId: string | null;
+  accountName: string | null;
   receiptId: string | null;
 }

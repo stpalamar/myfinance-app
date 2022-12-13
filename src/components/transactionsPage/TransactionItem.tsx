@@ -6,26 +6,54 @@ import TransactionEditModal from './TransactionEditModal';
 import Stack from 'react-bootstrap/Stack';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/card';
+import Form from 'react-bootstrap/Form';
 
 type Props = {
   transaction: Transaction;
+  isSelected: any;
+  handleSelect: any;
 };
 
-const TransactionItem = ({ transaction }: Props) => {
+const TransactionItem = ({ transaction, isSelected, handleSelect }: Props) => {
   const [modalShow, setModalShow] = useState(false);
 
-  const handleCardClick = () => {
+  const handleTransactionClick = () => {
     setModalShow(true);
   };
 
   return (
     <>
-      <Card onClick={handleCardClick}>
-        <Card.Body>
-          <Stack direction="horizontal" gap={3}>
-            <div className="border">{transaction.description}</div>
-            <div className="border">{transaction.amount}</div>
-          </Stack>
+      <Card>
+        <Card.Body className="d-flex">
+          <Form.Check
+            key={transaction.id}
+            id={transaction.id}
+            type="checkbox"
+            checked={isSelected}
+            onChange={handleSelect}
+          ></Form.Check>
+          <Container
+            className="d-flex justify-content-between mx-2"
+            onClick={handleTransactionClick}
+          >
+            <div className="d-flex w-25">{transaction.accountName}</div>
+            <div className="d-flex align-items-center">
+              <span className="transaction-description">
+                {transaction.description}
+              </span>
+            </div>
+            <div className="d-flex ms-auto">
+              {transaction.type ? (
+                <span className="fw-semibold transaction-income">
+                  {transaction.amount}
+                </span>
+              ) : (
+                <span className="fw-semibold transaction-expense">
+                  {-transaction.amount}
+                </span>
+              )}
+            </div>
+          </Container>
         </Card.Body>
       </Card>
       <TransactionEditModal

@@ -9,6 +9,7 @@ import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
 import TransactionsList from './transactionsPage/TransactionsList';
 
 import Alert from 'react-bootstrap/Alert';
+import Container from 'react-bootstrap/Container';
 
 const TransactionsPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -47,7 +48,12 @@ const TransactionsPage = () => {
       ) : errMessage ? (
         <Alert variant="danger">{errMessage}</Alert>
       ) : (
-        <TransactionsList list={transactions} />
+        <>
+          <Container className="d-flex my-4 justify-content-center">
+            Sorting features...
+          </Container>
+          <TransactionsList list={transactions} />
+        </>
       )}
     </>
   );
