@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 
 import Transaction from '../../types/Transaction.type';
+import Account from '../../types/Account.type';
 
 import TransactionItem from './TransactionItem';
 import TransactionsGroupByDate from './TransactionsGroupByDate';
@@ -27,11 +28,12 @@ export const calculateSum = (transactions: Transaction[]) => {
 };
 
 type Props = {
-  list: Transaction[];
+  transactions: Transaction[];
+  accounts: Account[];
   sortBy: string;
 };
 
-const TransactionsList = ({ list, sortBy }: Props) => {
+const TransactionsList = ({ transactions, accounts, sortBy }: Props) => {
   const [isSelectedAll, setIsSelectedAll] = useState(SELECT_STATES.None);
   const [isSelected, setIsSelected] = useState<Transaction[]>([]);
 
@@ -41,8 +43,9 @@ const TransactionsList = ({ list, sortBy }: Props) => {
   }, [sortBy]);
 
   const transactionsSum: any = useMemo(
-    () => (isSelected.length ? calculateSum(isSelected) : calculateSum(list)),
-    [isSelected, list]
+    () =>
+      isSelected.length ? calculateSum(isSelected) : calculateSum(transactions),
+    [isSelected, transactions]
   );
 
   const handleSelectAll = () => {
@@ -50,7 +53,7 @@ const TransactionsList = ({ list, sortBy }: Props) => {
 
     if (isSelectedAll === SELECT_STATES.None) {
       newState = SELECT_STATES.All;
-      setIsSelected(list);
+      setIsSelected(transactions);
     } else if (isSelectedAll === SELECT_STATES.All) {
       newState = SELECT_STATES.None;
       setIsSelected([]);
@@ -64,7 +67,7 @@ const TransactionsList = ({ list, sortBy }: Props) => {
 
   const handleSelect = (e: any) => {
     const { id, checked } = e.target;
-    const transaction = list.find((i) => i.id === id);
+    const transaction = transactions.find((i) => i.id === id);
 
     setIsSelectedAll(SELECT_STATES.Multiple);
     setIsSelected([...isSelected, transaction!]);
@@ -99,11 +102,12 @@ const TransactionsList = ({ list, sortBy }: Props) => {
       </Card>
       <Stack gap={2} className="mt-3">
         {sortBy === 'amount-DESC' || sortBy === 'amount-ASC' ? (
-          list.map((transaction) => {
+          transactions.map((transaction) => {
             return (
               <TransactionItem
                 key={transaction.id}
                 transaction={transaction}
+                accounts={accounts}
                 handleSelect={handleSelect}
                 isSelected={isSelected.includes(transaction)}
               />
@@ -111,7 +115,8 @@ const TransactionsList = ({ list, sortBy }: Props) => {
           })
         ) : (
           <TransactionsGroupByDate
-            list={list}
+            transactions={transactions}
+            accounts={accounts}
             handleSelect={handleSelect}
             isSelected={isSelected}
           />

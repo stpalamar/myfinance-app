@@ -1,4 +1,6 @@
 import Transaction from '../../types/Transaction.type';
+import Account from '../../types/Account.type';
+
 import TransactionItem from './TransactionItem';
 
 import { calculateSum } from './TransactionsList';
@@ -6,12 +8,18 @@ import { calculateSum } from './TransactionsList';
 import Stack from 'react-bootstrap/Stack';
 
 type Props = {
-  list: Transaction[];
+  transactions: Transaction[];
+  accounts: Account[];
   handleSelect: (transaction: Transaction) => void;
   isSelected: Transaction[];
 };
-const TransactionsGroupByDate = ({ list, handleSelect, isSelected }: Props) => {
-  const dates = list.reduce((dates: any, transaction) => {
+const TransactionsGroupByDate = ({
+  transactions,
+  accounts,
+  handleSelect,
+  isSelected,
+}: Props) => {
+  const dates = transactions.reduce((dates: any, transaction) => {
     const date = transaction.date.split('T')[0];
     if (!dates[date]) {
       dates[date] = [];
@@ -55,9 +63,9 @@ const TransactionsGroupByDate = ({ list, handleSelect, isSelected }: Props) => {
     <div>
       {groupDates.map((group: any, index) => {
         return (
-          <>
+          <div key={index}>
             <div className="d-flex justify-content-between mt-3 mx-3">
-              <div key={index} className="d-flex">
+              <div className="d-flex">
                 <span className="fw-semibold text-body">
                   {getDate(group.date)}
                 </span>
@@ -75,13 +83,14 @@ const TransactionsGroupByDate = ({ list, handleSelect, isSelected }: Props) => {
                   <TransactionItem
                     key={transaction.id}
                     transaction={transaction}
+                    accounts={accounts}
                     handleSelect={handleSelect}
                     isSelected={isSelected.includes(transaction)}
                   />
                 </Stack>
               );
             })}
-          </>
+          </div>
         );
       })}
     </div>

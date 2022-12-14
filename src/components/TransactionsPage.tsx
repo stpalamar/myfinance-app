@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { getTransactions } from '../services/transactions.service';
+import { getAccounts } from '../services/accounts.service';
 
 import Transaction from '../types/Transaction.type';
+import Account from '../types/Account.type';
 
 import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
 
@@ -18,6 +20,7 @@ const TransactionsPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errMessage, setErrMessage] = useState<string>('');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [sortBy, setSortBy] = useState<string>('date-DESC');
 
   const navigate = useNavigate();
@@ -43,6 +46,21 @@ const TransactionsPage = () => {
       }
     };
     fetchTransctions();
+
+    // const fetchAccounts = async () => {
+    //   try {
+    //     const response = (await getAccounts(
+    //       axiosPrivate,
+    //       controller
+    //     )) as Account[];
+    //     setAccounts(response);
+    //   } catch (err) {
+    //     setErrMessage('Error fetching accounts');
+    //     setLoading(false);
+    //     navigate('/login', { replace: true });
+    //   }
+    // };
+    // fetchAccounts();
 
     return () => {
       controller.abort();
@@ -92,7 +110,11 @@ const TransactionsPage = () => {
               </Form.Select>
             </div>
           </Container>
-          <TransactionsList list={transactions} sortBy={sortBy} />
+          <TransactionsList
+            transactions={transactions}
+            accounts={accounts}
+            sortBy={sortBy}
+          />
         </>
       )}
     </>

@@ -37,3 +37,7 @@ input:hover {
   outline: 1px solid;
   cursor: pointer;
 }
+
+.input-amount {
+  text-align: right;
+}

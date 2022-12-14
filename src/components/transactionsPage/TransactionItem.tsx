@@ -1,20 +1,26 @@
 import { useState } from 'react';
 
 import Transaction from '../../types/Transaction.type';
+import Account from '../../types/Account.type';
 import TransactionEditModal from './TransactionEditModal';
 
-import Stack from 'react-bootstrap/Stack';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/card';
 import Form from 'react-bootstrap/Form';
 
 type Props = {
   transaction: Transaction;
+  accounts: Account[];
   isSelected: any;
   handleSelect: any;
 };
 
-const TransactionItem = ({ transaction, isSelected, handleSelect }: Props) => {
+const TransactionItem = ({
+  transaction,
+  accounts,
+  isSelected,
+  handleSelect,
+}: Props) => {
   const [modalShow, setModalShow] = useState(false);
 
   const handleTransactionClick = () => {
@@ -60,6 +66,7 @@ const TransactionItem = ({ transaction, isSelected, handleSelect }: Props) => {
         show={modalShow}
         onHide={() => setModalShow(false)}
         transaction={transaction}
+        accounts={accounts}
       ></TransactionEditModal>
     </>
   );
