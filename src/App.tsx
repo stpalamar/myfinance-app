@@ -4,6 +4,7 @@ import MainLayout from './layouts/MainLayout';
 
 import './App.css';
 import AccountsPage from './components/AccountsPage';
+import AccountDetail from './components/AccountDetail';
 import TransactionsPage from './components/TransactionsPage';
 import AnalyticsPage from './components/AnalyticsPage';
 import ImportPage from './components/ImportPage';
@@ -27,6 +28,10 @@ const App = () => {
           <Route element={<RequireAuth />}>
             <Route path="/" element={<MainLayout />}>
               <Route path="/accounts" element={<AccountsPage />} />
+              <Route
+                path="/accounts/detail/:accountId"
+                element={<AccountDetail />}
+              />
               <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/import" element={<ImportPage />} />

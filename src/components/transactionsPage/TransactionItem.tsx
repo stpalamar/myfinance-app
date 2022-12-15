@@ -41,7 +41,7 @@ const TransactionItem = ({
 
   return (
     <>
-      <Card className="transaction-card">
+      <Card className="list-card">
         <Card.Body className="d-flex">
           <Form.Check
             key={transaction.id}
@@ -51,7 +51,7 @@ const TransactionItem = ({
             onChange={handleSelect}
           ></Form.Check>
           <Container
-            className="d-flex justify-content-between mx-2 px-0 transaction-card-body"
+            className="d-flex justify-content-between mx-2 px-0 list-card-body"
             onClick={handleTransactionClick}
           >
             <div className="d-flex w-25">{transaction.accountName}</div>
