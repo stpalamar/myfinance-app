@@ -13,6 +13,7 @@ type Props = {
   accounts: Account[];
   isSelected: any;
   handleSelect: any;
+  fetchData: () => Promise<any>;
 };
 
 const TransactionItem = ({
@@ -20,6 +21,7 @@ const TransactionItem = ({
   accounts,
   isSelected,
   handleSelect,
+  fetchData,
 }: Props) => {
   const [modalShow, setModalShow] = useState(false);
 
@@ -67,6 +69,7 @@ const TransactionItem = ({
         onHide={() => setModalShow(false)}
         transaction={transaction}
         accounts={accounts}
+        fetchData={fetchData}
       ></TransactionEditModal>
     </>
   );

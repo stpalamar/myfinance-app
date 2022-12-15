@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
@@ -15,6 +15,7 @@ import TransactionsList from './transactionsPage/TransactionsList';
 import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
+import { StringDecoder } from 'string_decoder';
 
 const TransactionsPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -26,51 +27,39 @@ const TransactionsPage = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
 
+  const fetchData = useCallback(async () => {
+    const controller = new AbortController();
+    setLoading(true);
+    try {
+      const transactionsResponse = (await getTransactions(
+        axiosPrivate,
+        controller
+      )) as Transaction[];
+      const sortedTransactions = sortTransactions(
+        transactionsResponse,
+        'date-DESC'
+      );
+      setTransactions(sortedTransactions);
+
+      const accountsResponse = (await getAccounts(
+        axiosPrivate,
+        controller
+      )) as Account[];
+      setAccounts(accountsResponse);
+
+      setLoading(false);
+    } catch (err) {
+      setErrMessage('Error fetching data');
+      setLoading(false);
+      navigate('/login', { replace: true });
+    }
+    controller.abort();
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
 
-    setLoading(true);
-    const fetchData = async () => {
-      try {
-        const transactionsResponse = (await getTransactions(
-          axiosPrivate,
-          controller
-        )) as Transaction[];
-        transactionsResponse.sort(
-          (a, b) => Date.parse(b.date) - Date.parse(a.date)
-        );
-        setTransactions(transactionsResponse);
-
-        const accountsResponse = (await getAccounts(
-          axiosPrivate,
-          controller
-        )) as Account[];
-        setAccounts(accountsResponse);
-
-        setLoading(false);
-      } catch (err) {
-        setErrMessage('Error fetching data');
-        setLoading(false);
-        navigate('/login', { replace: true });
-      }
-    };
     fetchData();
-
-    // const fetchAccounts = async () => {
-    //   try {
-    //     const response = (await getAccounts(
-    //       axiosPrivate,
-    //       controller
-    //     )) as Account[];
-    //     setAccounts(response);
-    //   } catch (err) {
-    //     setErrMessage('Error fetching accounts');
-    //     setLoading(false);
-    //     navigate('/login', { replace: true });
-    //   }
-    // };
-    // fetchAccounts();
-
     return () => {
       controller.abort();
     };
@@ -78,7 +67,13 @@ const TransactionsPage = () => {
 
   const handleSelectSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
-    const [sort, order] = e.target.value.split('-');
+    const sortedTransactions = sortTransactions(transactions, e.target.value);
+    setTransactions(sortedTransactions);
+  };
+
+  const sortTransactions = (transactions: Transaction[], sortBy: string) => {
+    console.log(transactions);
+    const [sort, order] = sortBy.split('-');
     const sortedTransactions = [...transactions] as Transaction[];
 
     if (sort === 'date') {
@@ -98,7 +93,7 @@ const TransactionsPage = () => {
         }
       });
     }
-    setTransactions(sortedTransactions);
+    return sortedTransactions;
   };
 
   return (
@@ -123,6 +118,7 @@ const TransactionsPage = () => {
             transactions={transactions}
             accounts={accounts}
             sortBy={sortBy}
+            fetchData={fetchData}
           />
         </>
       )}

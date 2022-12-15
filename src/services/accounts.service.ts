@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-const API_URL = '/Accounts/';
+const API_URL = '/Accounts';
 
 export const getAccounts = async (
   axiosPrivate: AxiosInstance,

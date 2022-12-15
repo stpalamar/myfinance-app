@@ -31,9 +31,15 @@ type Props = {
   transactions: Transaction[];
   accounts: Account[];
   sortBy: string;
+  fetchData: () => Promise<any>;
 };
 
-const TransactionsList = ({ transactions, accounts, sortBy }: Props) => {
+const TransactionsList = ({
+  transactions,
+  accounts,
+  sortBy,
+  fetchData,
+}: Props) => {
   const [isSelectedAll, setIsSelectedAll] = useState(SELECT_STATES.None);
   const [isSelected, setIsSelected] = useState<Transaction[]>([]);
 
@@ -110,6 +116,7 @@ const TransactionsList = ({ transactions, accounts, sortBy }: Props) => {
                 accounts={accounts}
                 handleSelect={handleSelect}
                 isSelected={isSelected.includes(transaction)}
+                fetchData={fetchData}
               />
             );
           })
@@ -119,6 +126,7 @@ const TransactionsList = ({ transactions, accounts, sortBy }: Props) => {
             accounts={accounts}
             handleSelect={handleSelect}
             isSelected={isSelected}
+            fetchData={fetchData}
           />
         )}
       </Stack>

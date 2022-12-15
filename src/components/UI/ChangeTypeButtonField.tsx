@@ -1,18 +1,8 @@
-import { useState } from 'react';
 import { useField } from 'formik';
 
 import Form from 'react-bootstrap/Form';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-
-type Props = {
-  initialValue: number;
-  setFieldValue: (
-    field: string,
-    value: number,
-    shouldValidate?: boolean
-  ) => void;
-};
 
 const ChangeTypeButtonField = ({ ...props }: any) => {
   const [field, meta, helpers] = useField(props);

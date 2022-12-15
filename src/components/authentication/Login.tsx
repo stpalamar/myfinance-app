@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { Formik } from 'formik';
+import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
 import { AxiosError } from 'axios';
 
@@ -35,7 +35,7 @@ const Login = () => {
   });
 
   const handleLogin = async (
-    values: { email: string; password: string },
+    values: FormikValues,
     actions: {
       resetForm: any;
     }

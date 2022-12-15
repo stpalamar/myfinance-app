@@ -12,12 +12,14 @@ type Props = {
   accounts: Account[];
   handleSelect: (transaction: Transaction) => void;
   isSelected: Transaction[];
+  fetchData: () => Promise<any>;
 };
 const TransactionsGroupByDate = ({
   transactions,
   accounts,
   handleSelect,
   isSelected,
+  fetchData,
 }: Props) => {
   const dates = transactions.reduce((dates: any, transaction) => {
     const date = transaction.date.split('T')[0];
@@ -86,6 +88,7 @@ const TransactionsGroupByDate = ({
                     accounts={accounts}
                     handleSelect={handleSelect}
                     isSelected={isSelected.includes(transaction)}
+                    fetchData={fetchData}
                   />
                 </Stack>
               );
