@@ -30,22 +30,31 @@ const TransactionsPage = () => {
     const controller = new AbortController();
 
     setLoading(true);
-    const fetchTransctions = async () => {
+    const fetchData = async () => {
       try {
-        const response = (await getTransactions(
+        const transactionsResponse = (await getTransactions(
           axiosPrivate,
           controller
         )) as Transaction[];
+        transactionsResponse.sort(
+          (a, b) => Date.parse(b.date) - Date.parse(a.date)
+        );
+        setTransactions(transactionsResponse);
+
+        const accountsResponse = (await getAccounts(
+          axiosPrivate,
+          controller
+        )) as Account[];
+        setAccounts(accountsResponse);
+
         setLoading(false);
-        response.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
-        setTransactions(response);
       } catch (err) {
-        setErrMessage('Error fetching transactions');
+        setErrMessage('Error fetching data');
         setLoading(false);
         navigate('/login', { replace: true });
       }
     };
-    fetchTransctions();
+    fetchData();
 
     // const fetchAccounts = async () => {
     //   try {
