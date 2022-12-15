@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
@@ -144,7 +144,7 @@ const TransactionsPage = () => {
             transaction={null}
             fetchData={fetchData}
             isAdding={true}
-          ></TransactionEditModal>
+          />
         </Container>
       )}
     </>
