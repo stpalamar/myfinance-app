@@ -29,6 +29,10 @@
   transition: 0.3s;
 }
 
+.transaction-card-body {
+  cursor: pointer;
+}
+
 .transaction-card:hover {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
@@ -38,6 +42,22 @@ input:hover {
   cursor: pointer;
 }
 
+.three-dots:after {
+  font-weight: bold;
+  content: '\2807';
+}
+
+.three-dots:hover {
+  cursor: pointer;
+}
+
 .input-amount {
   text-align: right;
+}
+
+.list-group {
+  max-height: 300px;
+  overflow: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }

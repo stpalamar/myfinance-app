@@ -5,27 +5,13 @@ import Account from '../../types/Account.type';
 
 import TransactionItem from './TransactionItem';
 import TransactionsGroupByDate from './TransactionsGroupByDate';
+import TransactionsDeleteModal from './TransactionsDeleteModal';
 import SelectTransactionsCheckbox from '../UI/SelectTransactionsCheckbox';
 
 import Stack from 'react-bootstrap/Stack';
+import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
-
-export const SELECT_STATES = {
-  All: 'Checked',
-  Multiple: 'Indeterminate',
-  None: 'Empty',
-};
-
-export const calculateSum = (transactions: Transaction[]) => {
-  let sum = 0;
-  transactions.forEach((transaction) => {
-    transaction.type
-      ? (sum += transaction.amount)
-      : (sum -= transaction.amount);
-  });
-  return sum;
-};
 
 type Props = {
   transactions: Transaction[];
@@ -42,6 +28,7 @@ const TransactionsList = ({
 }: Props) => {
   const [isSelectedAll, setIsSelectedAll] = useState(SELECT_STATES.None);
   const [isSelected, setIsSelected] = useState<Transaction[]>([]);
+  const [deleteModalShow, setDeleteModalShow] = useState(false);
 
   useEffect(() => {
     setIsSelectedAll(SELECT_STATES.None);
@@ -87,51 +74,85 @@ const TransactionsList = ({
     }
   };
 
+  const handleDeleteClick = () => {
+    setDeleteModalShow(true);
+  };
+
   return (
-    <Container>
-      <Card bg={isSelected.length ? 'warning' : ''}>
-        <Card.Header className="d-flex">
-          <Container className="d-flex mx-0 px-0">
-            <SelectTransactionsCheckbox
-              value={isSelectedAll}
-              onChange={handleSelectAll}
-            />
-          </Container>
-          <Container className="d-flex justify-content-between mx-2">
-            <div className="d-flex ms-auto">
+    <>
+      <Container className="p-0">
+        <Card bg={isSelected.length ? 'warning' : ''}>
+          <Card.Header className="d-flex justify-content-between align-items-center">
+            <div className="d-flex mx-0 px-0 py-1">
+              <SelectTransactionsCheckbox
+                value={isSelectedAll}
+                onChange={handleSelectAll}
+              />
+            </div>
+            {isSelected.length != 0 && (
+              <div className="d-flex mx-0 px-0 justify-content-center align-items-center">
+                <div>{isSelected.length} selected transactions &nbsp;</div>
+                <Button onClick={handleDeleteClick} variant="danger" size="sm">
+                  Delete
+                </Button>
+              </div>
+            )}
+            <div className="d-flex mx-2">
               <span className="fw-semibold transactions-sum">
                 {transactionsSum}
               </span>
             </div>
-          </Container>
-        </Card.Header>
-      </Card>
-      <Stack gap={2} className="mt-3">
-        {sortBy === 'amount-DESC' || sortBy === 'amount-ASC' ? (
-          transactions.map((transaction) => {
-            return (
-              <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                accounts={accounts}
-                handleSelect={handleSelect}
-                isSelected={isSelected.includes(transaction)}
-                fetchData={fetchData}
-              />
-            );
-          })
-        ) : (
-          <TransactionsGroupByDate
-            transactions={transactions}
-            accounts={accounts}
-            handleSelect={handleSelect}
-            isSelected={isSelected}
-            fetchData={fetchData}
-          />
-        )}
-      </Stack>
-    </Container>
+          </Card.Header>
+        </Card>
+        <Stack gap={2} className="mt-3">
+          {sortBy === 'amount-DESC' || sortBy === 'amount-ASC' ? (
+            transactions.map((transaction) => {
+              return (
+                <TransactionItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  accounts={accounts}
+                  handleSelect={handleSelect}
+                  isSelected={isSelected.includes(transaction)}
+                  fetchData={fetchData}
+                />
+              );
+            })
+          ) : (
+            <TransactionsGroupByDate
+              transactions={transactions}
+              accounts={accounts}
+              handleSelect={handleSelect}
+              isSelected={isSelected}
+              fetchData={fetchData}
+            />
+          )}
+        </Stack>
+      </Container>
+      <TransactionsDeleteModal
+        show={deleteModalShow}
+        onHide={() => setDeleteModalShow(false)}
+        transactions={isSelected}
+        fetchData={fetchData}
+      />
+    </>
   );
+};
+
+export const SELECT_STATES = {
+  All: 'Checked',
+  Multiple: 'Indeterminate',
+  None: 'Empty',
+};
+
+export const calculateSum = (transactions: Transaction[]) => {
+  let sum = 0;
+  transactions.forEach((transaction) => {
+    transaction.type
+      ? (sum += transaction.amount)
+      : (sum -= transaction.amount);
+  });
+  return sum;
 };
 
 export default TransactionsList;

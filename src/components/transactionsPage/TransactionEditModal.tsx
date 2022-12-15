@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useState } from 'react';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
@@ -6,13 +6,19 @@ import * as yup from 'yup';
 import Transaction from '../../types/Transaction.type';
 import Account from '../../types/Account.type';
 
+import { AxiosError } from 'axios';
 import { axiosPrivate } from '../../api/axios';
-import { updateTransaction } from '../../services/transactions.service';
+
+import {
+  updateTransaction,
+  addTransaction,
+} from '../../services/transactions.service';
 
 import ChangeTypeButtonField from '../UI/ChangeTypeButtonField';
 import DatePickerField from '../UI/DatePickerField';
 
 import Modal from 'react-bootstrap/Modal';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -21,9 +27,10 @@ import Spinner from 'react-bootstrap/Spinner';
 type Props = {
   show: boolean;
   onHide: () => void;
-  transaction: Transaction;
+  transaction: Transaction | null;
   accounts: Account[];
   fetchData: () => Promise<any>;
+  isAdding: boolean;
 };
 
 const TransactionEditModal = ({
@@ -32,7 +39,10 @@ const TransactionEditModal = ({
   transaction,
   accounts,
   fetchData,
+  isAdding,
 }: Props) => {
+  const [errMessage, setErrMessage] = useState<string>('');
+
   const schema = yup.object({
     description: yup.string().required("Description can't be empty"),
     date: yup.date().required(),
@@ -41,8 +51,30 @@ const TransactionEditModal = ({
       .number()
       .required('Amount must be non-zero number')
       .positive('Amount must be non-zero number'),
-    accountId: yup.string().required(),
+    accountId: yup.string().required('Select account'),
   });
+
+  const initialValues =
+    transaction != null && !isAdding
+      ? {
+          id: transaction.id,
+          description: transaction.description,
+          date: transaction.date,
+          type: transaction.type,
+          amount: transaction.amount,
+          accountId: transaction.accountId,
+        }
+      : {
+          date: new Date(Date.now()).toISOString(),
+          amount: 0,
+          description: '',
+          accountId: '',
+          type: 0,
+          accountName: null,
+          receiptId: null,
+        };
+
+  console.log(initialValues);
 
   const handleSave = async (
     values: FormikValues,
@@ -62,19 +94,37 @@ const TransactionEditModal = ({
     }
   };
 
+  const handleAdd = async (
+    values: FormikValues,
+    actions: {
+      setSubmitting: any;
+    }
+  ) => {
+    actions.setSubmitting(true);
+    const controller = new AbortController();
+    try {
+      await addTransaction(axiosPrivate, controller, values as Transaction);
+      controller.abort();
+      onHide();
+      fetchData();
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (!err.response) {
+          setErrMessage('No server response');
+        } else {
+          console.log(err.response);
+          setErrMessage('Something went wrong');
+        }
+      }
+    }
+  };
+
   return (
-    <Modal show={show} onHide={onHide} onExited={() => {}} size="lg" centered>
+    <Modal show={show} onHide={onHide} size="lg" centered>
       <Formik
         validationSchema={schema}
-        onSubmit={handleSave}
-        initialValues={{
-          id: transaction.id,
-          description: transaction.description,
-          date: transaction.date,
-          type: transaction.type,
-          amount: transaction.amount,
-          accountId: transaction.accountId,
-        }}
+        onSubmit={isAdding ? handleAdd : handleSave}
+        initialValues={initialValues}
       >
         {({
           dirty,
@@ -92,10 +142,13 @@ const TransactionEditModal = ({
           <Form noValidate onSubmit={handleSubmit}>
             <Modal.Header closeButton>
               <Modal.Title id="contained-modal-title-vcenter">
-                EDIT TRANSACTION
+                {isAdding ? 'ADD ' : 'EDIT '} TRANSACTION
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
+              <div>
+                {errMessage && <Alert variant="danger">{errMessage}</Alert>}
+              </div>
               <ChangeTypeButtonField name="type" />
               <Form.Group>
                 <Form.Label>Account</Form.Label>
@@ -104,10 +157,20 @@ const TransactionEditModal = ({
                   onChange={handleChange}
                   value={values.accountId}
                 >
+                  {isAdding && (
+                    <option value="" disabled>
+                      Choose...
+                    </option>
+                  )}
                   {accounts.map((account) => (
                     <option value={account.id}>{account.name}</option>
                   ))}
                 </Form.Select>
+                {errors.accountId && (
+                  <Form.Text className="text-danger">
+                    {errors.accountId}
+                  </Form.Text>
+                )}
               </Form.Group>
               <Form.Group>
                 <Form.Label>Amount</Form.Label>
@@ -132,7 +195,7 @@ const TransactionEditModal = ({
                       }
                     }}
                     value={values.amount}
-                    isInvalid={errors.amount ? true : false}
+                    isInvalid={errors.amount && touched.amount ? true : false}
                   />
                 </InputGroup>
                 {errors.amount && (
@@ -149,6 +212,9 @@ const TransactionEditModal = ({
                   dateFormat="MMMM d, yyyy"
                   customInput={<Form.Control type="input" />}
                 />
+                {errors.date && (
+                  <Form.Text className="text-danger">Choose date</Form.Text>
+                )}
               </Form.Group>
               <Form.Group>
                 <Form.Label>Time</Form.Label>
@@ -175,7 +241,9 @@ const TransactionEditModal = ({
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.description}
-                  isInvalid={errors.description ? true : false}
+                  isInvalid={
+                    errors.description && touched.description ? true : false
+                  }
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.description}
@@ -197,15 +265,18 @@ const TransactionEditModal = ({
                   </Spinner>
                 ) : (
                   <>
-                    <Button className="flex-fill" onClick={handleReset}>
-                      Revert
-                    </Button>
+                    {!isAdding && (
+                      <Button className="flex-fill" onClick={handleReset}>
+                        Revert
+                      </Button>
+                    )}
+
                     <Button
                       className="flex-fill"
                       variant="success"
                       type="submit"
                     >
-                      Save
+                      {isAdding ? 'Add' : 'Save'}
                     </Button>
                   </>
                 )}

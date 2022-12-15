@@ -50,7 +50,9 @@ const Menu = () => {
             </Nav.Link>
           </Nav>
           <Dropdown>
-            <Dropdown.Toggle variant="outline">{auth?.email}</Dropdown.Toggle>
+            <Dropdown.Toggle variant="outline" className="px-0">
+              {auth?.email}
+            </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item variant="danger" onClick={logOut}>
                 Log out

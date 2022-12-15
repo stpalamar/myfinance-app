@@ -2,11 +2,16 @@ import { useState } from 'react';
 
 import Transaction from '../../types/Transaction.type';
 import Account from '../../types/Account.type';
+
 import TransactionEditModal from './TransactionEditModal';
+import TransactionsDeleteModal from './TransactionsDeleteModal';
+
+import CustomToggle from '../UI/CustomToggle';
 
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/card';
 import Form from 'react-bootstrap/Form';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
   transaction: Transaction;
@@ -23,10 +28,15 @@ const TransactionItem = ({
   handleSelect,
   fetchData,
 }: Props) => {
-  const [modalShow, setModalShow] = useState(false);
+  const [editModalShow, setEditModalShow] = useState(false);
+  const [deleteModalShow, setDeleteModalShow] = useState(false);
 
   const handleTransactionClick = () => {
-    setModalShow(true);
+    setEditModalShow(true);
+  };
+
+  const handleDeleteClick = () => {
+    setDeleteModalShow(true);
   };
 
   return (
@@ -41,7 +51,7 @@ const TransactionItem = ({
             onChange={handleSelect}
           ></Form.Check>
           <Container
-            className="d-flex justify-content-between mx-2"
+            className="d-flex justify-content-between mx-2 px-0 transaction-card-body"
             onClick={handleTransactionClick}
           >
             <div className="d-flex w-25">{transaction.accountName}</div>
@@ -62,15 +72,28 @@ const TransactionItem = ({
               )}
             </div>
           </Container>
+          <Dropdown>
+            <Dropdown.Toggle as={CustomToggle}></Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={handleDeleteClick}>Delete</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </Card.Body>
       </Card>
       <TransactionEditModal
-        show={modalShow}
-        onHide={() => setModalShow(false)}
+        show={editModalShow}
+        onHide={() => setEditModalShow(false)}
         transaction={transaction}
         accounts={accounts}
         fetchData={fetchData}
+        isAdding={false}
       ></TransactionEditModal>
+      <TransactionsDeleteModal
+        show={deleteModalShow}
+        onHide={() => setDeleteModalShow(false)}
+        transactions={[transaction]}
+        fetchData={fetchData}
+      />
     </>
   );
 };

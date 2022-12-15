@@ -14,6 +14,17 @@ export const getTransactions = async (
   return response.data;
 };
 
+export const addTransaction = async (
+  axiosPrivate: AxiosInstance,
+  controller: AbortController,
+  transaction: Transaction
+) => {
+  const response = await axiosPrivate.post(API_URL, transaction, {
+    signal: controller.signal,
+  });
+  return response.data;
+};
+
 export const updateTransaction = async (
   axiosPrivate: AxiosInstance,
   controller: AbortController,
@@ -23,4 +34,15 @@ export const updateTransaction = async (
     signal: controller.signal,
   });
   return response.data;
+};
+
+export const deleteTransaction = async (
+  axiosPrivate: AxiosInstance,
+  controller: AbortController,
+  transactionId: string
+) => {
+  await axiosPrivate.delete(API_URL + '/' + transactionId, {
+    signal: controller.signal,
+  });
+  return true;
 };

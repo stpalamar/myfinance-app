@@ -11,11 +11,12 @@ import Account from '../types/Account.type';
 import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
 
 import TransactionsList from './transactionsPage/TransactionsList';
+import TransactionEditModal from './transactionsPage/TransactionEditModal';
 
 import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
-import { StringDecoder } from 'string_decoder';
+import Button from 'react-bootstrap/Button';
 
 const TransactionsPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,6 +24,7 @@ const TransactionsPage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [sortBy, setSortBy] = useState<string>('date-DESC');
+  const [editModalShow, setEditModalShow] = useState(false);
 
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
@@ -39,13 +41,14 @@ const TransactionsPage = () => {
         transactionsResponse,
         'date-DESC'
       );
-      setTransactions(sortedTransactions);
 
       const accountsResponse = (await getAccounts(
         axiosPrivate,
         controller
       )) as Account[];
+
       setAccounts(accountsResponse);
+      setTransactions(sortedTransactions);
 
       setLoading(false);
     } catch (err) {
@@ -71,8 +74,11 @@ const TransactionsPage = () => {
     setTransactions(sortedTransactions);
   };
 
+  const handleAddTransaction = () => {
+    setEditModalShow(true);
+  };
+
   const sortTransactions = (transactions: Transaction[], sortBy: string) => {
-    console.log(transactions);
     const [sort, order] = sortBy.split('-');
     const sortedTransactions = [...transactions] as Transaction[];
 
@@ -103,9 +109,9 @@ const TransactionsPage = () => {
       ) : errMessage ? (
         <Alert variant="danger">{errMessage}</Alert>
       ) : (
-        <>
-          <Container className="d-flex my-4 justify-content-center">
-            <div className="d-flex ms-auto">
+        <Container>
+          <div className="d-flex flex-row">
+            <div className="d-flex mt-4 ms-auto">
               <Form.Select onChange={handleSelectSort} value={sortBy}>
                 <option value="date-DESC">Time (newest first)</option>
                 <option value="date-ASC">Time (olders first)</option>
@@ -113,14 +119,33 @@ const TransactionsPage = () => {
                 <option value="amount-DESC">Amount (highest first)</option>
               </Form.Select>
             </div>
-          </Container>
-          <TransactionsList
-            transactions={transactions}
+          </div>
+          <div className="d-flex flex-row mt-4">
+            <div className="d-flex flex-column bg-light p-3 mx-2 rounded">
+              <h4>Transactions</h4>
+              <Button className="my-3 mx-2" onClick={handleAddTransaction}>
+                + Add
+              </Button>
+            </div>
+            <div className="d-flex flex-fill flex-column">
+              <Container className="d-flex justify-content-center"></Container>
+              <TransactionsList
+                transactions={transactions}
+                accounts={accounts}
+                sortBy={sortBy}
+                fetchData={fetchData}
+              />
+            </div>
+          </div>
+          <TransactionEditModal
+            show={editModalShow}
+            onHide={() => setEditModalShow(false)}
             accounts={accounts}
-            sortBy={sortBy}
+            transaction={null}
             fetchData={fetchData}
-          />
-        </>
+            isAdding={true}
+          ></TransactionEditModal>
+        </Container>
       )}
     </>
   );

@@ -14,20 +14,6 @@ const ChangeTypeButtonField = ({ ...props }: any) => {
 
   return (
     <Form.Group>
-      {/* {radios.map((radio, idx) => (
-        <>
-          <input
-            {...field}
-            {...props}
-            type="radio"
-            checked={radio.value === field.value}
-            onChange={(e) => {
-              helpers.setValue(radio.value);
-            }}
-          />
-          <label>{radio.value}</label>
-        </>
-      ))} */}
       <ButtonGroup>
         {radios.map((radio, idx) => (
           <ToggleButton
