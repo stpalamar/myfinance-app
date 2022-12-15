@@ -4,7 +4,7 @@ export default interface Transaction {
   date: string;
   type: number;
   amount: number;
-  accountId: string | null;
+  accountId: string;
   accountName: string | null;
   receiptId: string | null;
 }

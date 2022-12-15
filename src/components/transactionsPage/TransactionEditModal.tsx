@@ -99,7 +99,11 @@ const TransactionEditModal = ({
               <ChangeTypeButtonField name="type" />
               <Form.Group>
                 <Form.Label>Account</Form.Label>
-                <Form.Select name="accountId" onChange={handleChange}>
+                <Form.Select
+                  name="accountId"
+                  onChange={handleChange}
+                  value={values.accountId}
+                >
                   {accounts.map((account) => (
                     <option value={account.id}>{account.name}</option>
                   ))}
