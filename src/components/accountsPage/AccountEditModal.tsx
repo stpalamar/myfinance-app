@@ -37,7 +37,7 @@ const AccountEditModal = ({
 
   const schema = yup.object({
     name: yup.string().required("Name can't be empty"),
-    initialAmount: yup.date().required(),
+    initialAmount: yup.number().required(),
   });
 
   const initialValues =
@@ -158,9 +158,9 @@ const AccountEditModal = ({
                     const newValue = value.replace(',', '.');
                     const regex = /^(?!0{2,})\d*(\.\d{0,2})?$/;
                     if (newValue.length === 0) {
-                      setFieldValue('amount', newValue);
+                      setFieldValue('initialAmount', newValue);
                     } else if (regex.test(newValue)) {
-                      setFieldValue('amount', newValue);
+                      setFieldValue('initialAmount', newValue);
                     }
                   }}
                   value={values.initialAmount}

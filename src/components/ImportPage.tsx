@@ -1,4 +1,5 @@
 import { BaseSyntheticEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
@@ -15,6 +16,7 @@ import Alert from 'react-bootstrap/Alert';
 const ImportPage = () => {
   const [errMessage, setErrMessage] = useState<string>('');
   const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
 
   const schema = yup.object().shape({
     file: yup.mixed().required('File is required'),
@@ -34,6 +36,7 @@ const ImportPage = () => {
       await importTransactions(axiosPrivate, controller, body);
       controller.abort();
       actions.setSubmitting(false);
+      navigate('/accounts');
     } catch (err) {
       if (err instanceof AxiosError) {
         if (!err.response) {

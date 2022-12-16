@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
@@ -6,6 +6,7 @@ import { getAccounts } from '../services/accounts.service';
 
 import Account from '../types/Account.type';
 import AccountsList from './accountsPage/AccountsList';
+import AccountEditModal from './accountsPage/AccountEditModal';
 
 import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
 
@@ -18,35 +19,34 @@ const AccountsPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errMessage, setErrMessage] = useState<string>('');
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [editModalShow, setEditModalShow] = useState(false);
+  const [editAccountModalShow, setAccountEditModalShow] = useState(false);
   const [sortBy, setSortBy] = useState<string>('Default');
 
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     const controller = new AbortController();
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const accountsResponse = (await getAccounts(
-          axiosPrivate,
-          controller
-        )) as Account[];
+    setLoading(true);
+    try {
+      const accountsResponse = (await getAccounts(
+        axiosPrivate,
+        controller
+      )) as Account[];
 
-        setAccounts(accountsResponse);
+      setAccounts(accountsResponse);
 
-        setLoading(false);
-      } catch (err) {
-        setErrMessage('Error fetching data');
-        setLoading(false);
-        navigate('/login', { replace: true });
-      }
-    };
+      setLoading(false);
+    } catch (err) {
+      setErrMessage('Error fetching data');
+      setLoading(false);
+      navigate('/login', { replace: true });
+    }
+    controller.abort();
+  }, []);
+
+  useEffect(() => {
     fetchData();
-    return () => {
-      controller.abort();
-    };
   }, []);
 
   const handleSelectSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -55,8 +55,8 @@ const AccountsPage = () => {
     setAccounts(sortedAccounts);
   };
 
-  const handleAddTransaction = () => {
-    setEditModalShow(true);
+  const handleAddAccount = () => {
+    setAccountEditModalShow(true);
   };
 
   const sortAccounts = (accounts: Account[], sortBy: string) => {
@@ -90,7 +90,7 @@ const AccountsPage = () => {
               <h4>Accounts</h4>
               <Button
                 className="my-3 mx-2"
-                onClick={() => {}}
+                onClick={handleAddAccount}
                 variant="success"
               >
                 + Add
@@ -103,6 +103,14 @@ const AccountsPage = () => {
           </div>
         </Container>
       )}
+
+      <AccountEditModal
+        show={editAccountModalShow}
+        onHide={() => setAccountEditModalShow(false)}
+        account={null}
+        fetchData={fetchData}
+        isAdding={true}
+      />
     </>
   );
 };

@@ -33,7 +33,6 @@ const AccountDeleteModal = ({ show, onHide, account, fetchData }: Props) => {
       await deleteAccount(axiosPrivate, controller, account.id);
       controller.abort();
       onHide();
-      fetchData();
       setIsDeleting(false);
       navigate('/accounts');
     } catch (err) {
