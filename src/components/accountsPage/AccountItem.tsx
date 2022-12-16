@@ -16,14 +16,17 @@ const AccountItem = ({ account }: Props) => {
       <Card
         className="list-card"
         onClick={() => {
-          navigate('detail/' + account.id, { replace: true });
+          navigate('detail/' + account.id, {
+            replace: true,
+            state: { account },
+          });
         }}
       >
         <Card.Body className="d-flex list-card-body">
           <Container className="d-flex justify-content-between mx-2 px-0">
             <div className="d-flex w-25">{account.name}</div>
             <div className="d-flex ms-auto">
-              <span className="fw-semibold ">{account.amount}</span>
+              <span className="fw-semibold ">{account.amount.toFixed(2)}</span>
             </div>
           </Container>
         </Card.Body>

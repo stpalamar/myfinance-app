@@ -7,7 +7,7 @@ import Transaction from '../../types/Transaction.type';
 import Account from '../../types/Account.type';
 
 import { AxiosError } from 'axios';
-import { axiosPrivate } from '../../api/axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 import {
   updateTransaction,
@@ -42,6 +42,7 @@ const TransactionEditModal = ({
   isAdding,
 }: Props) => {
   const [errMessage, setErrMessage] = useState<string>('');
+  const axiosPrivate = useAxiosPrivate();
 
   const schema = yup.object({
     description: yup.string().required("Description can't be empty"),
@@ -74,8 +75,6 @@ const TransactionEditModal = ({
           receiptId: null,
         };
 
-  console.log(initialValues);
-
   const handleSave = async (
     values: FormikValues,
     actions: {
@@ -87,10 +86,16 @@ const TransactionEditModal = ({
     try {
       await updateTransaction(axiosPrivate, controller, values as Transaction);
       controller.abort();
+      await fetchData();
       onHide();
-      fetchData();
     } catch (err) {
-      console.log(err);
+      if (err instanceof AxiosError) {
+        if (!err.response) {
+          setErrMessage('No server response');
+        } else {
+          setErrMessage('Something went wrong');
+        }
+      }
     }
   };
 
@@ -158,12 +163,14 @@ const TransactionEditModal = ({
                   value={values.accountId}
                 >
                   {isAdding && (
-                    <option value="" disabled>
+                    <option key="0" value="" disabled>
                       Choose...
                     </option>
                   )}
                   {accounts.map((account) => (
-                    <option value={account.id}>{account.name}</option>
+                    <option key={account.id} value={account.id}>
+                      {account.name}
+                    </option>
                   ))}
                 </Form.Select>
                 {errors.accountId && (
@@ -188,8 +195,6 @@ const TransactionEditModal = ({
                       const regex = /^(?!0{2,})\d*(\.\d{0,2})?$/;
                       if (newValue.length === 0) {
                         setFieldValue('amount', newValue);
-                      } else if (values.amount === 0) {
-                        console.log(values.amount);
                       } else if (regex.test(newValue)) {
                         setFieldValue('amount', newValue);
                       }

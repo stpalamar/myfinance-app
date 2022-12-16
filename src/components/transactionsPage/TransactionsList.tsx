@@ -33,7 +33,7 @@ const TransactionsList = ({
   useEffect(() => {
     setIsSelectedAll(SELECT_STATES.None);
     setIsSelected([]);
-  }, [sortBy]);
+  }, [sortBy, transactions]);
 
   const transactionsSum: any = useMemo(
     () =>
@@ -81,8 +81,8 @@ const TransactionsList = ({
   return (
     <>
       <Container className="p-0">
-        <Card bg={isSelected.length ? 'warning' : ''}>
-          <Card.Header className="d-flex justify-content-between align-items-center">
+        <Card bg={isSelected.length ? 'warning' : 'light'} className="p-2">
+          <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex mx-0 px-0 py-1">
               <SelectTransactionsCheckbox
                 value={isSelectedAll}
@@ -102,7 +102,7 @@ const TransactionsList = ({
                 {transactionsSum}
               </span>
             </div>
-          </Card.Header>
+          </div>
         </Card>
         <Stack gap={2} className="mt-3">
           {sortBy === 'amount-DESC' || sortBy === 'amount-ASC' ? (
@@ -152,7 +152,7 @@ export const calculateSum = (transactions: Transaction[]) => {
       ? (sum += transaction.amount)
       : (sum -= transaction.amount);
   });
-  return sum;
+  return sum.toFixed(2);
 };
 
 export default TransactionsList;

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { getTransactions } from '../services/transactions.service';
 import { getAccounts } from '../services/accounts.service';
+import { exportTransactions } from '../services/importExport.service';
 
 import Transaction from '../types/Transaction.type';
 import Account from '../types/Account.type';
@@ -54,7 +55,6 @@ const TransactionsPage = () => {
     } catch (err) {
       setErrMessage('Error fetching data');
       setLoading(false);
-      navigate('/login', { replace: true });
     }
     controller.abort();
   }, []);
@@ -76,6 +76,20 @@ const TransactionsPage = () => {
 
   const handleAddTransaction = () => {
     setEditModalShow(true);
+  };
+
+  const handleExport = async () => {
+    const controller = new AbortController();
+    setLoading(true);
+    try {
+      const exportResponse = await exportTransactions(axiosPrivate, controller);
+      setLoading(false);
+    } catch (err) {
+      setErrMessage('Error exporting data');
+      setLoading(false);
+      navigate('/login', { replace: true });
+    }
+    controller.abort();
   };
 
   const sortTransactions = (transactions: Transaction[], sortBy: string) => {
@@ -123,8 +137,15 @@ const TransactionsPage = () => {
           <div className="d-flex flex-row mt-4">
             <div className="d-flex flex-column bg-light p-3 mx-2 rounded">
               <h4>Transactions</h4>
-              <Button className="my-3 mx-2" onClick={handleAddTransaction}>
+              <Button
+                className="my-3"
+                onClick={handleAddTransaction}
+                variant="success"
+              >
                 + Add
+              </Button>
+              <Button variant="secondary" onClick={handleExport}>
+                Export to Excel
               </Button>
             </div>
             <div className="d-flex flex-fill flex-column">

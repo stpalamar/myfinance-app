@@ -88,7 +88,11 @@ const AccountsPage = () => {
           <div className="d-flex flex-row mt-4">
             <div className="d-flex flex-column bg-light p-3 mx-2 rounded">
               <h4>Accounts</h4>
-              <Button className="my-3 mx-2" onClick={() => {}}>
+              <Button
+                className="my-3 mx-2"
+                onClick={() => {}}
+                variant="success"
+              >
                 + Add
               </Button>
             </div>

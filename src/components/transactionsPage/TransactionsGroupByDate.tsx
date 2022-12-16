@@ -81,7 +81,7 @@ const TransactionsGroupByDate = ({
 
             {group.transactions.map((transaction: Transaction) => {
               return (
-                <Stack className="mt-2">
+                <Stack className="mt-2" key={transaction.id}>
                   <TransactionItem
                     key={transaction.id}
                     transaction={transaction}

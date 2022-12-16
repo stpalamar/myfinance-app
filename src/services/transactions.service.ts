@@ -14,6 +14,17 @@ export const getTransactions = async (
   return response.data;
 };
 
+export const getTransactionsByAccount = async (
+  axiosPrivate: AxiosInstance,
+  controller: AbortController,
+  accountId: string
+) => {
+  const response = await axiosPrivate.get(API_URL + '/account/' + accountId, {
+    signal: controller.signal,
+  });
+  return response.data;
+};
+
 export const addTransaction = async (
   axiosPrivate: AxiosInstance,
   controller: AbortController,

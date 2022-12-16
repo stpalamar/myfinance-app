@@ -1,13 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import Transaction from '../../types/Transaction.type';
+import Account from '../../types/Account.type';
 
 import { AxiosError } from 'axios';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
-import { deleteTransaction } from '../../services/transactions.service';
+import { deleteAccount } from '../../services/accounts.service';
 
 import Modal from 'react-bootstrap/Modal';
-import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
@@ -16,33 +16,26 @@ import Alert from 'react-bootstrap/Alert';
 type Props = {
   show: boolean;
   onHide: () => void;
-  transactions: Transaction[];
+  account: Account;
   fetchData: () => Promise<any>;
 };
 
-const TransactionsDeleteModal = ({
-  show,
-  onHide,
-  transactions,
-  fetchData,
-}: Props) => {
+const AccountDeleteModal = ({ show, onHide, account, fetchData }: Props) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [errMessage, setErrMessage] = useState<string>('');
   const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     setIsDeleting(true);
     const controller = new AbortController();
     try {
-      await Promise.all(
-        transactions.map((transaction) =>
-          deleteTransaction(axiosPrivate, controller, transaction.id)
-        )
-      );
+      await deleteAccount(axiosPrivate, controller, account.id);
       controller.abort();
       onHide();
       fetchData();
       setIsDeleting(false);
+      navigate('/accounts');
     } catch (err) {
       if (err instanceof AxiosError) {
         if (!err.response) {
@@ -65,40 +58,7 @@ const TransactionsDeleteModal = ({
       <Modal.Body>
         <div>{errMessage && <Alert variant="danger">{errMessage}</Alert>}</div>
         <Container>
-          <p>Do you really want to remove this transaction?</p>
-          <ListGroup>
-            {transactions.map((transaction, index) => (
-              <ListGroup.Item key={transaction.id}>
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex flex-column">
-                    <div>
-                      <div className="fw-bold">{transaction.description}</div>
-                      <div>{transaction.accountName}</div>
-                    </div>
-                  </div>
-                  <div className="d-flex flex-column align-items-end">
-                    <div>
-                      {transaction.type ? (
-                        <span className="fw-semibold transaction-income">
-                          {transaction.amount}
-                        </span>
-                      ) : (
-                        <span className="fw-semibold transaction-expense">
-                          {-transaction.amount}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      {new Date(transaction.date).toLocaleString([], {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+          <p>Do you really want to remove the account {account.name}?</p>
         </Container>
       </Modal.Body>
       <Modal.Footer className="d-flex justify-content-center px-4">
@@ -125,4 +85,4 @@ const TransactionsDeleteModal = ({
   );
 };
 
-export default TransactionsDeleteModal;
+export default AccountDeleteModal;
