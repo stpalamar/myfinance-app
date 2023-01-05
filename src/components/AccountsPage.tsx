@@ -63,6 +63,27 @@ const AccountsPage = () => {
     const [sort, order] = sortBy.split('-');
     const sortedTransactions = [...accounts] as Account[];
 
+    if (sort === 'Default') {
+      fetchData();
+    } else if (sort === 'AZ') {
+      sortedTransactions.sort((a, b) => {
+        return a.name.localeCompare(b.name);
+      });
+    } else if (sort === 'ZA') {
+      sortedTransactions.sort((a, b) => {
+        return b.name.localeCompare(a.name);
+      });
+    } else if (sort === 'balance') {
+      if (order === 'ASC') {
+        sortedTransactions.sort((a, b) => {
+          return a.amount - b.amount;
+        });
+      } else if (order === 'DESC') {
+        sortedTransactions.sort((a, b) => {
+          return b.amount - a.amount;
+        });
+      }
+    }
     return sortedTransactions;
   };
 
@@ -78,8 +99,8 @@ const AccountsPage = () => {
             <div className="d-flex mt-4 ms-auto">
               <Form.Select onChange={handleSelectSort} value={sortBy}>
                 <option value="Default">Default</option>
-                <option value="A-Z">A-Z</option>
-                <option value="Z-A">Z-A</option>
+                <option value="AZ">A-Z</option>
+                <option value="ZA">Z-A</option>
                 <option value="balance-ASC">Balance (lowest first)</option>
                 <option value="balance-DESC">Balance (highest first)</option>
               </Form.Select>
