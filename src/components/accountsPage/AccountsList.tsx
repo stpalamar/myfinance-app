@@ -10,11 +10,16 @@ type Props = {
 
 const AccountsList = ({ accounts }: Props) => {
   return (
-    <Stack gap={2}>
-      {accounts.map((account) => {
-        return <AccountItem account={account} key={account.id} />;
-      })}
-    </Stack>
+    <>
+      <div className="text-center">
+        {accounts.length === 0 && <p>No accounts found</p>}
+      </div>
+      <Stack gap={2}>
+        {accounts.map((account) => {
+          return <AccountItem account={account} key={account.id} />;
+        })}
+      </Stack>
+    </>
   );
 };
 

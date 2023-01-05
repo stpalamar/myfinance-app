@@ -38,6 +38,7 @@ const TransactionsPage = () => {
         axiosPrivate,
         controller
       )) as Transaction[];
+      setSortBy('date-DESC');
       const sortedTransactions = sortTransactions(
         transactionsResponse,
         'date-DESC'

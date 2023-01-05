@@ -15,7 +15,7 @@ const useAxiosPrivate = () => {
         if (!config.headers!['Authorization']) {
           config.headers!['Authorization'] = `Bearer ${auth?.accessToken}`;
         }
-        console.log(axiosPrivate.interceptors.request);
+        // console.log(axiosPrivate.interceptors.request);
         return config;
       },
       (error) => Promise.reject(error)

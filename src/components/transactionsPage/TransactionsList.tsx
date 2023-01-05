@@ -81,29 +81,40 @@ const TransactionsList = ({
   return (
     <>
       <Container className="p-0">
-        <Card bg={isSelected.length ? 'warning' : 'light'} className="p-2">
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex mx-0 px-0 py-1">
-              <SelectTransactionsCheckbox
-                value={isSelectedAll}
-                onChange={handleSelectAll}
-              />
-            </div>
-            {isSelected.length != 0 && (
-              <div className="d-flex mx-0 px-0 justify-content-center align-items-center">
-                <div>{isSelected.length} selected transactions &nbsp;</div>
-                <Button onClick={handleDeleteClick} variant="danger" size="sm">
-                  Delete
-                </Button>
-              </div>
-            )}
-            <div className="d-flex mx-2">
-              <span className="fw-semibold transactions-sum">
-                {transactionsSum}
-              </span>
-            </div>
+        {accounts.length === 0 ? (
+          <div className="text-center">
+            <p>No transactions found</p>
           </div>
-        </Card>
+        ) : (
+          <Card bg={isSelected.length ? 'warning' : 'light'} className="p-2">
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex mx-0 px-0 py-1">
+                <SelectTransactionsCheckbox
+                  value={isSelectedAll}
+                  onChange={handleSelectAll}
+                />
+              </div>
+              {isSelected.length != 0 && (
+                <div className="d-flex mx-0 px-0 justify-content-center align-items-center">
+                  <div>{isSelected.length} selected transactions &nbsp;</div>
+                  <Button
+                    onClick={handleDeleteClick}
+                    variant="danger"
+                    size="sm"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              )}
+              <div className="d-flex mx-2">
+                <span className="fw-semibold transactions-sum">
+                  {transactionsSum}
+                </span>
+              </div>
+            </div>
+          </Card>
+        )}
+
         <Stack gap={2} className="mt-3">
           {sortBy === 'amount-DESC' || sortBy === 'amount-ASC' ? (
             transactions.map((transaction) => {
