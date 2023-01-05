@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
@@ -8,6 +8,8 @@ import Account from '../../types/Account.type';
 
 import { AxiosError } from 'axios';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+
+import { getReceiptByTransactionId } from '../../services/receipts.service';
 
 import {
   updateTransaction,
@@ -21,8 +23,12 @@ import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
+import Image from 'react-bootstrap/Image';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
+import { isConstructorDeclaration } from 'typescript';
 
 type Props = {
   show: boolean;
@@ -41,6 +47,8 @@ const TransactionEditModal = ({
   fetchData,
   isAdding,
 }: Props) => {
+  const [receiptShow, setReceiptShow] = useState(false);
+  const [receipt, setReceipt] = useState<string | null>(null);
   const [errMessage, setErrMessage] = useState<string>('');
   const axiosPrivate = useAxiosPrivate();
 
@@ -53,6 +61,7 @@ const TransactionEditModal = ({
       .required('Amount must be non-zero number')
       .positive('Amount must be non-zero number'),
     accountId: yup.string().required('Select account'),
+    receiptId: yup.string(),
   });
 
   const initialValues =
@@ -64,6 +73,7 @@ const TransactionEditModal = ({
           type: transaction.type,
           amount: transaction.amount,
           accountId: transaction.accountId,
+          receiptId: transaction.receiptId,
         }
       : {
           date: new Date(Date.now()).toISOString(),
@@ -124,6 +134,27 @@ const TransactionEditModal = ({
     }
   };
 
+  const fetchReceipt = useCallback(async () => {
+    if (transaction?.receiptId) {
+      const controller = new AbortController();
+      try {
+        const receiptResponse = await getReceiptByTransactionId(
+          axiosPrivate,
+          controller,
+          transaction?.id
+        );
+        setReceipt(receiptResponse.imageDataBase64);
+      } catch (err) {
+        setErrMessage('Error fetching data');
+      }
+      controller.abort();
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchReceipt();
+  }, []);
+
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Formik
@@ -154,113 +185,136 @@ const TransactionEditModal = ({
               <div>
                 {errMessage && <Alert variant="danger">{errMessage}</Alert>}
               </div>
-              <ChangeTypeButtonField name="type" />
-              <Form.Group>
-                <Form.Label>Account</Form.Label>
-                <Form.Select
-                  name="accountId"
-                  onChange={handleChange}
-                  value={values.accountId}
-                >
-                  {isAdding && (
-                    <option key="0" value="" disabled>
-                      Choose...
-                    </option>
-                  )}
-                  {accounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.name}
-                    </option>
-                  ))}
-                </Form.Select>
-                {errors.accountId && (
-                  <Form.Text className="text-danger">
-                    {errors.accountId}
-                  </Form.Text>
-                )}
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Amount</Form.Label>
-                <InputGroup>
-                  <InputGroup.Text>{values.type ? '+' : '-'}</InputGroup.Text>
-                  <Form.Control
-                    className="input-amount"
-                    type="text"
-                    name="amount"
-                    placeholder="0"
-                    onChange={(e) => {
-                      e.preventDefault();
-                      const { value } = e.target;
-                      const newValue = value.replace(',', '.');
-                      const regex = /^(?!0{2,})\d*(\.\d{0,2})?$/;
-                      if (newValue.length === 0) {
-                        setFieldValue('amount', newValue);
-                      } else if (regex.test(newValue)) {
-                        setFieldValue('amount', newValue);
+              <Tabs defaultActiveKey="edit-info" className="mb-3">
+                <Tab eventKey="edit-info" title="Info">
+                  <ChangeTypeButtonField name="type" />
+                  <Form.Group>
+                    <Form.Label>Account</Form.Label>
+                    <Form.Select
+                      name="accountId"
+                      onChange={handleChange}
+                      value={values.accountId}
+                    >
+                      {isAdding && (
+                        <option key="0" value="" disabled>
+                          Choose...
+                        </option>
+                      )}
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    {errors.accountId && (
+                      <Form.Text className="text-danger">
+                        {errors.accountId}
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Amount</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        {values.type ? '+' : '-'}
+                      </InputGroup.Text>
+                      <Form.Control
+                        className="input-amount"
+                        type="text"
+                        name="amount"
+                        placeholder="0"
+                        onChange={(e) => {
+                          e.preventDefault();
+                          const { value } = e.target;
+                          const newValue = value.replace(',', '.');
+                          const regex = /^(?!0{2,})\d*(\.\d{0,2})?$/;
+                          if (newValue.length === 0) {
+                            setFieldValue('amount', newValue);
+                          } else if (regex.test(newValue)) {
+                            setFieldValue('amount', newValue);
+                          }
+                        }}
+                        value={values.amount}
+                        isInvalid={
+                          errors.amount && touched.amount ? true : false
+                        }
+                      />
+                    </InputGroup>
+                    {errors.amount && (
+                      <Form.Text className="text-danger">
+                        {errors.amount}
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Date</Form.Label>
+                    <DatePickerField
+                      name="date"
+                      filterDate={(date: Date) => {
+                        return new Date() > date;
+                      }}
+                      dateFormat="MMMM d, yyyy"
+                      customInput={<Form.Control type="input" />}
+                    />
+                    {errors.date && (
+                      <Form.Text className="text-danger">Choose date</Form.Text>
+                    )}
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Time</Form.Label>
+                    <DatePickerField
+                      name="date"
+                      filterDate={(date: Date) => {
+                        return new Date() > date;
+                      }}
+                      showTimeSelect
+                      showTimeSelectOnly
+                      timeIntervals={15}
+                      timeCaption="Time"
+                      dateFormat={'h:mm aa'}
+                      customInput={<Form.Control type="input" />}
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      type="text"
+                      name="description"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.description}
+                      isInvalid={
+                        errors.description && touched.description ? true : false
                       }
-                    }}
-                    value={values.amount}
-                    isInvalid={errors.amount && touched.amount ? true : false}
-                  />
-                </InputGroup>
-                {errors.amount && (
-                  <Form.Text className="text-danger">{errors.amount}</Form.Text>
-                )}
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Date</Form.Label>
-                <DatePickerField
-                  name="date"
-                  filterDate={(date: Date) => {
-                    return new Date() > date;
-                  }}
-                  dateFormat="MMMM d, yyyy"
-                  customInput={<Form.Control type="input" />}
-                />
-                {errors.date && (
-                  <Form.Text className="text-danger">Choose date</Form.Text>
-                )}
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Time</Form.Label>
-                <DatePickerField
-                  name="date"
-                  filterDate={(date: Date) => {
-                    return new Date() > date;
-                  }}
-                  showTimeSelect
-                  showTimeSelectOnly
-                  timeIntervals={15}
-                  timeCaption="Time"
-                  dateFormat={'h:mm aa'}
-                  customInput={<Form.Control type="input" />}
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  type="text"
-                  name="description"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.description}
-                  isInvalid={
-                    errors.description && touched.description ? true : false
-                  }
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.description}
-                </Form.Control.Feedback>
-              </Form.Group>
-              {/* <pre style={{ margin: '0 auto' }}>
-                {JSON.stringify(
-                  { ...values, ...errors, isValid, isSubmitting },
-                  null,
-                  2
-                )}
-              </pre> */}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.description}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  <pre style={{ margin: '0 auto' }}>
+                    {JSON.stringify(
+                      { ...values, ...errors, isValid, isSubmitting },
+                      null,
+                      2
+                    )}
+                  </pre>
+                </Tab>
+                <Tab eventKey="edit-receipt" title="Receipt">
+                  <Form.Group>
+                    <div className="d-flex">
+                      <Image
+                        src={`data:image/jpeg;base64,${receipt}`}
+                        className="rounded img-fluid"
+                      ></Image>
+                    </div>
+                    <Form.Label>Receipt</Form.Label>
+                    <Form.Control type="file" name="receipt" />
+                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                  </Form.Group>
+                </Tab>
+              </Tabs>
             </Modal.Body>
             {dirty && (
               <Modal.Footer className="d-flex justify-content-center">

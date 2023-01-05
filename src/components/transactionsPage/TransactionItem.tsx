@@ -87,7 +87,7 @@ const TransactionItem = ({
         accounts={accounts}
         fetchData={fetchData}
         isAdding={false}
-      ></TransactionEditModal>
+      />
       <TransactionsDeleteModal
         show={deleteModalShow}
         onHide={() => setDeleteModalShow(false)}
