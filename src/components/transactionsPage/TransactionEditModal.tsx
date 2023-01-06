@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, BaseSyntheticEvent } from 'react';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
@@ -9,7 +9,11 @@ import Account from '../../types/Account.type';
 import { AxiosError } from 'axios';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
-import { getReceiptByTransactionId } from '../../services/receipts.service';
+import {
+  getReceiptByTransactionId,
+  deleteReceiptFromTransaction,
+  addReceiptToTransaction,
+} from '../../services/receipts.service';
 
 import {
   updateTransaction,
@@ -28,7 +32,6 @@ import Tab from 'react-bootstrap/Tab';
 import Image from 'react-bootstrap/Image';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
-import { isConstructorDeclaration } from 'typescript';
 
 type Props = {
   show: boolean;
@@ -47,7 +50,6 @@ const TransactionEditModal = ({
   fetchData,
   isAdding,
 }: Props) => {
-  const [receiptShow, setReceiptShow] = useState(false);
   const [receipt, setReceipt] = useState<string | null>(null);
   const [errMessage, setErrMessage] = useState<string>('');
   const axiosPrivate = useAxiosPrivate();
@@ -61,7 +63,6 @@ const TransactionEditModal = ({
       .required('Amount must be non-zero number')
       .positive('Amount must be non-zero number'),
     accountId: yup.string().required('Select account'),
-    receiptId: yup.string(),
   });
 
   const initialValues =
@@ -73,7 +74,6 @@ const TransactionEditModal = ({
           type: transaction.type,
           amount: transaction.amount,
           accountId: transaction.accountId,
-          receiptId: transaction.receiptId,
         }
       : {
           date: new Date(Date.now()).toISOString(),
@@ -82,7 +82,6 @@ const TransactionEditModal = ({
           accountId: '',
           type: 0,
           accountName: null,
-          receiptId: null,
         };
 
   const handleSave = async (
@@ -134,59 +133,118 @@ const TransactionEditModal = ({
     }
   };
 
-  const fetchReceipt = useCallback(async () => {
-    if (transaction?.receiptId) {
-      const controller = new AbortController();
-      try {
-        const receiptResponse = await getReceiptByTransactionId(
-          axiosPrivate,
-          controller,
-          transaction?.id
-        );
-        setReceipt(receiptResponse.imageDataBase64);
-      } catch (err) {
-        setErrMessage('Error fetching data');
-      }
-      controller.abort();
+  const handleDeleteReceipt = async () => {
+    const controller = new AbortController();
+    try {
+      await deleteReceiptFromTransaction(
+        axiosPrivate,
+        controller,
+        transaction!.id
+      );
+      transaction!.receiptId = null;
+      setReceipt(null);
+    } catch (err) {
+      setErrMessage('Error deleting receipt');
     }
-  }, []);
+    controller.abort();
+  };
 
-  useEffect(() => {
-    fetchReceipt();
+  const handleAddReceipt = async (
+    values: FormikValues,
+    actions: {
+      setSubmitting: any;
+    }
+  ) => {
+    actions.setSubmitting(true);
+    const body = new FormData();
+    body.append('ImageData', values.file);
+    const controller = new AbortController();
+    try {
+      await addReceiptToTransaction(
+        axiosPrivate,
+        controller,
+        transaction!.id,
+        body
+      );
+      const receiptResponse = await getReceiptByTransactionId(
+        axiosPrivate,
+        controller,
+        transaction!.id
+      );
+      setReceipt(receiptResponse.imageDataBase64);
+      actions.setSubmitting(false);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (!err.response) {
+          setErrMessage('No server response');
+        } else {
+          console.log(err.response);
+          setErrMessage('Something went wrong');
+        }
+      }
+    }
+    controller.abort();
+  };
+
+  const fetchReceipt = useCallback(async () => {
+    if (transaction?.receiptId == null) return;
+    const controller = new AbortController();
+    try {
+      const receiptResponse = await getReceiptByTransactionId(
+        axiosPrivate,
+        controller,
+        transaction!.id
+      );
+      setReceipt(receiptResponse.imageDataBase64);
+    } catch (err) {
+      setErrMessage('Error fetching data');
+    }
+    controller.abort();
   }, []);
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
-      <Formik
-        validationSchema={schema}
-        onSubmit={isAdding ? handleAdd : handleSave}
-        initialValues={initialValues}
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          {isAdding ? 'ADD ' : 'EDIT '} TRANSACTION
+        </Modal.Title>
+      </Modal.Header>
+      <Tabs
+        defaultActiveKey="edit-info"
+        className="mt-3 px-2"
+        onSelect={(key) => {
+          if (key === 'edit-receipt') {
+            if (receipt == null && transaction?.receiptId != null) {
+              fetchReceipt();
+            }
+          }
+        }}
       >
-        {({
-          dirty,
-          handleSubmit,
-          handleChange,
-          handleBlur,
-          handleReset,
-          setFieldValue,
-          values,
-          errors,
-          touched,
-          isValid,
-          isSubmitting,
-        }) => (
-          <Form noValidate onSubmit={handleSubmit}>
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title-vcenter">
-                {isAdding ? 'ADD ' : 'EDIT '} TRANSACTION
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <div>
-                {errMessage && <Alert variant="danger">{errMessage}</Alert>}
-              </div>
-              <Tabs defaultActiveKey="edit-info" className="mb-3">
-                <Tab eventKey="edit-info" title="Info">
+        <Tab eventKey="edit-info" title="Info">
+          <Formik
+            validationSchema={schema}
+            onSubmit={isAdding ? handleAdd : handleSave}
+            initialValues={initialValues}
+          >
+            {({
+              dirty,
+              handleSubmit,
+              handleChange,
+              handleBlur,
+              handleReset,
+              setFieldValue,
+              values,
+              errors,
+              touched,
+              isValid,
+              isSubmitting,
+            }) => (
+              <Form noValidate onSubmit={handleSubmit}>
+                <Modal.Body>
+                  <div>
+                    {errMessage && <Alert variant="danger">{errMessage}</Alert>}
+                  </div>
+
                   <ChangeTypeButtonField name="type" />
                   <Form.Group>
                     <Form.Label>Account</Form.Label>
@@ -300,50 +358,109 @@ const TransactionEditModal = ({
                       2
                     )}
                   </pre>
-                </Tab>
-                <Tab eventKey="edit-receipt" title="Receipt">
-                  <Form.Group>
-                    <div className="d-flex">
-                      <Image
-                        src={`data:image/jpeg;base64,${receipt}`}
-                        className="rounded img-fluid"
-                      ></Image>
-                    </div>
-                    <Form.Label>Receipt</Form.Label>
-                    <Form.Control type="file" name="receipt" />
-                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-                  </Form.Group>
-                </Tab>
-              </Tabs>
-            </Modal.Body>
-            {dirty && (
-              <Modal.Footer className="d-flex justify-content-center">
-                {isSubmitting ? (
-                  <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                ) : (
-                  <>
-                    {!isAdding && (
-                      <Button className="flex-fill" onClick={handleReset}>
-                        Revert
-                      </Button>
-                    )}
+                </Modal.Body>
+                {dirty && (
+                  <Modal.Footer className="d-flex justify-content-center">
+                    {isSubmitting ? (
+                      <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </Spinner>
+                    ) : (
+                      <>
+                        {!isAdding && (
+                          <Button className="flex-fill" onClick={handleReset}>
+                            Revert
+                          </Button>
+                        )}
 
-                    <Button
-                      className="flex-fill"
-                      variant="success"
-                      type="submit"
-                    >
-                      {isAdding ? 'Add' : 'Save'}
-                    </Button>
-                  </>
+                        <Button
+                          className="flex-fill"
+                          variant="success"
+                          type="submit"
+                        >
+                          {isAdding ? 'Add' : 'Save'}
+                        </Button>
+                      </>
+                    )}
+                  </Modal.Footer>
                 )}
-              </Modal.Footer>
+              </Form>
             )}
-          </Form>
+          </Formik>
+        </Tab>
+        {!isAdding && (
+          <Tab eventKey="edit-receipt" title="Receipt">
+            <div className="d-flex m-3">
+              {receipt ? (
+                <div className="d-flex flex-column">
+                  <Image
+                    src={`data:image/jpeg;base64,${receipt}`}
+                    className="rounded img-fluid mb-2"
+                  ></Image>
+                  <Button variant="danger" onClick={handleDeleteReceipt}>
+                    Delete receipt
+                  </Button>
+                </div>
+              ) : (
+                <Formik
+                  initialValues={{ file: null }}
+                  onSubmit={handleAddReceipt}
+                  validationSchema={yup.object().shape({
+                    file: yup.mixed().required('File is required'),
+                  })}
+                >
+                  {({
+                    dirty,
+                    handleSubmit,
+                    handleChange,
+                    handleBlur,
+                    handleReset,
+                    setFieldValue,
+                    values,
+                    errors,
+                    touched,
+                    isValid,
+                    isSubmitting,
+                  }) => {
+                    return (
+                      <Form
+                        noValidate
+                        onSubmit={handleSubmit}
+                        className="d-flex justify-content-center flex-column"
+                      >
+                        <Form.Group>
+                          <Form.Label>Receipt file upload</Form.Label>
+                          <Form.Control
+                            as="input"
+                            id="file"
+                            name="file"
+                            type="file"
+                            onChange={(event: BaseSyntheticEvent) => {
+                              setFieldValue(
+                                'file',
+                                event.currentTarget.files[0]
+                              );
+                            }}
+                            isInvalid={
+                              errors.file && touched.file ? true : false
+                            }
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.file}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                        <Button type="submit" className="mt-4">
+                          Add receipt
+                        </Button>
+                      </Form>
+                    );
+                  }}
+                </Formik>
+              )}
+            </div>
+          </Tab>
         )}
-      </Formik>
+      </Tabs>
     </Modal>
   );
 };

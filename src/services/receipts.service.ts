@@ -12,3 +12,31 @@ export const getReceiptByTransactionId = async (
   });
   return response.data;
 };
+
+export const deleteReceiptFromTransaction = async (
+  axiosPrivate: AxiosInstance,
+  controller: AbortController,
+  transactionId: string
+) => {
+  const response = await axiosPrivate.delete(API_URL + '/' + transactionId, {
+    signal: controller.signal,
+  });
+  return response.data;
+};
+
+export const addReceiptToTransaction = async (
+  axiosPrivate: AxiosInstance,
+  controller: AbortController,
+  transactionId: string,
+  receiptFile: any
+) => {
+  const response = await axiosPrivate.post(
+    API_URL + '/' + transactionId,
+    receiptFile,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      signal: controller.signal,
+    }
+  );
+  return response.data;
+};
