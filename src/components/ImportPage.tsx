@@ -29,12 +29,11 @@ const ImportPage = () => {
     }
   ) => {
     actions.setSubmitting(true);
+    const controller = new AbortController();
     const body = new FormData();
     body.append('excelFile', values.file);
-    const controller = new AbortController();
     try {
       await importTransactions(axiosPrivate, controller, body);
-      controller.abort();
       actions.setSubmitting(false);
       navigate('/accounts');
     } catch (err) {
@@ -47,6 +46,7 @@ const ImportPage = () => {
         }
       }
     }
+    controller.abort();
   };
 
   return (

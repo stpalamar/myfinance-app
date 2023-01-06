@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, BaseSyntheticEvent } from 'react';
+import { useState, useCallback, BaseSyntheticEvent } from 'react';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
@@ -200,7 +200,7 @@ const TransactionEditModal = ({
       setErrMessage('Error fetching data');
     }
     controller.abort();
-  }, []);
+  }, [axiosPrivate, transaction]);
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
