@@ -81,6 +81,7 @@ const DepositCalculator = () => {
           handleBlur,
           handleSubmit,
           isSubmitting,
+          isValid,
         }) => (
           <Form noValidate onSubmit={handleSubmit}>
             <CustomInput
@@ -185,9 +186,29 @@ const DepositCalculator = () => {
                 </Form.Text>
               )}
             </Form.Group>
-            <Button type="submit" variant="primary" className="mt-2">
-              Calculate
-            </Button>
+            <div className="d-flex flex-column">
+              <div className="mt-3 d-flex">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="flex-fill me-1"
+                >
+                  Save
+                </Button>
+                <Button
+                  type="submit"
+                  variant="success"
+                  className="flex-fill ms-1"
+                >
+                  New
+                </Button>
+              </div>
+              <div className="d-flex mt-2">
+                <Button type="submit" variant="warning" className="flex-fill">
+                  Calculate
+                </Button>
+              </div>
+            </div>
           </Form>
         )}
       </Formik>
