@@ -48,6 +48,9 @@ const Menu = () => {
             <Nav.Link as={Link} to="import">
               Import
             </Nav.Link>
+            <Nav.Link as={Link} to="deposits">
+              Deposits
+            </Nav.Link>
           </Nav>
           <Dropdown>
             <Dropdown.Toggle variant="outline" className="px-0">

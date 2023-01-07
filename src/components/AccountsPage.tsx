@@ -40,7 +40,6 @@ const AccountsPage = () => {
     } catch (err) {
       setErrMessage('Error fetching data');
       setLoading(false);
-      navigate('/login', { replace: true });
     }
     controller.abort();
   }, []);

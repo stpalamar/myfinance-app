@@ -7,6 +7,7 @@ import AccountsPage from './components/AccountsPage';
 import AccountDetail from './components/AccountDetail';
 import TransactionsPage from './components/TransactionsPage';
 import ImportPage from './components/ImportPage';
+import DepositsPage from './components/DepositsPage';
 import Signup from './components/authentication/Signup';
 import Login from './components/authentication/Login';
 import PersistLogin from './components/PersistLogin';
@@ -33,6 +34,7 @@ const App = () => {
               />
               <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/import" element={<ImportPage />} />
+              <Route path="/deposits" element={<DepositsPage />} />
             </Route>
           </Route>
         </Route>
