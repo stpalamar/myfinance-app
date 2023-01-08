@@ -46,11 +46,11 @@ const DepositsPage = () => {
       {loading ? (
         <LoadingSpinnerCenter />
       ) : (
-        <Container className="d-flex justify-content-between mt-3">
-          <div className="d-flex">
+        <Container className="d-flex mt-3">
+          <div className="d-flex flex-fill mx-3">
             <DepositCalculator></DepositCalculator>
           </div>
-          <div className="d-flex">
+          <div className="d-flex flex-fill mx-3">
             <DepositsList deposits={deposits}></DepositsList>
           </div>
         </Container>

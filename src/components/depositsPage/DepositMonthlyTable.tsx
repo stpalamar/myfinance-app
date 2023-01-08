@@ -14,7 +14,7 @@ type Props = {
     initialDeposit: number;
     monthlyContribution: number;
     interestRate: number;
-    startDate: Date;
+    startDate: string;
     months: number;
   };
 };
@@ -23,7 +23,6 @@ const DepositMonthlyTable = ({ deposit }: Props) => {
   const [monthInterests, setMonthInterests] = useState([] as monthInterest[]);
 
   useEffect(() => {
-    console.log(deposit);
     const monthInterests = [] as monthInterest[];
 
     const interest =
@@ -51,7 +50,6 @@ const DepositMonthlyTable = ({ deposit }: Props) => {
         endBalance: endBalance,
       });
     }
-    console.log(monthInterests);
     setMonthInterests(monthInterests);
   }, [deposit]);
 

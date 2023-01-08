@@ -1,5 +1,7 @@
 import Deposit from '../../types/Deposit.type';
 
+import DepositItem from './DepositItem';
+
 import Stack from 'react-bootstrap/Stack';
 
 type Props = {
@@ -7,6 +9,7 @@ type Props = {
 };
 
 const DepositsList = ({ deposits }: Props) => {
+  console.log(deposits);
   return (
     <>
       <div className="text-center">
@@ -14,16 +17,7 @@ const DepositsList = ({ deposits }: Props) => {
       </div>
       <Stack gap={2}>
         {deposits.map((deposit) => {
-          return (
-            <div>
-              <p>{deposit.name}</p>
-              <p>{deposit.initialDeposit}</p>
-              <p>{deposit.monthlyContribution}</p>
-              <p>{deposit.interestRate}</p>
-              <p>{deposit.startDate.toISOString()}</p>
-              <p>{deposit.months}</p>
-            </div>
-          );
+          return <DepositItem deposit={deposit} />;
         })}
       </Stack>
     </>

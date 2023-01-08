@@ -1,27 +1,27 @@
-import { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
 
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import { AxiosError } from 'axios';
+
+import Deposit from '../../types/Deposit.type';
+
+import { addDeposit } from '../../services/deposits.service';
+
 import CustomInput from '../UI/CustomInput';
 import DatePickerField from '../UI/DatePickerField';
 
-import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import DepositMonthlyTable from './DepositMonthlyTable';
 
 const DepositCalculator = () => {
-  const [deposit, setDeposit] = useState(
-    null as null | {
-      initialDeposit: number;
-      monthlyContribution: number;
-      interestRate: number;
-      startDate: Date;
-      months: number;
-    }
-  );
+  const [deposit, setDeposit] = useState(null as null | Deposit);
+  const [errMessage, setErrMessage] = useState<string>('');
+  const axiosPrivate = useAxiosPrivate();
 
   const schema = yup.object({
     name: yup.string().required("Description can't be empty"),
@@ -56,8 +56,10 @@ const DepositCalculator = () => {
     months: 0,
   };
 
-  const handleCalculate = (values: FormikValues) => {
+  const handleCalculate = (values: FormikValues, formikBag: any) => {
     setDeposit({
+      id: values.id,
+      name: values.name,
       initialDeposit: values.initialDeposit,
       monthlyContribution: values.monthlyContribution,
       interestRate: values.interestRate,
@@ -66,8 +68,29 @@ const DepositCalculator = () => {
     });
   };
 
+  const handleAddDeposit = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    submitForm: any,
+    values: FormikValues
+  ) => {
+    submitForm();
+    const controller = new AbortController();
+    try {
+      await addDeposit(axiosPrivate, controller, values as Deposit);
+      controller.abort();
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (!err.response) {
+          setErrMessage('No server response');
+        } else {
+          setErrMessage('Something went wrong');
+        }
+      }
+    }
+  };
+
   return (
-    <div className="border rounded p-3">
+    <div className="border rounded p-3 flex-fill">
       <Formik
         validationSchema={schema}
         initialValues={initialValues}
@@ -80,6 +103,7 @@ const DepositCalculator = () => {
           handleChange,
           handleBlur,
           handleSubmit,
+          submitForm,
           isSubmitting,
           isValid,
         }) => (
@@ -188,19 +212,15 @@ const DepositCalculator = () => {
             </Form.Group>
             <div className="d-flex flex-column">
               <div className="mt-3 d-flex">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="flex-fill me-1"
-                >
+                <Button variant="primary" className="flex-fill me-1">
                   Save
                 </Button>
                 <Button
-                  type="submit"
                   variant="success"
                   className="flex-fill ms-1"
+                  onClick={(e) => handleAddDeposit(e, submitForm, values)}
                 >
-                  New
+                  Add
                 </Button>
               </div>
               <div className="d-flex mt-2">

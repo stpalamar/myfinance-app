@@ -4,6 +4,6 @@ export default interface Deposit {
   initialDeposit: number;
   monthlyContribution: number;
   interestRate: number;
-  startDate: Date;
+  startDate: string;
   months: number;
 }
