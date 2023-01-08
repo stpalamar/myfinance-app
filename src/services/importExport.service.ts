@@ -30,7 +30,7 @@ export const importTransactions = async (
   controller: AbortController,
   fileExcel: any
 ) => {
-  const response = await axiosPrivate.post(API_URL, fileExcel, {
+  await axiosPrivate.post(API_URL, fileExcel, {
     headers: { 'Content-Type': 'multipart/form-data' },
     signal: controller.signal,
   });

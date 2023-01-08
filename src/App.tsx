@@ -28,18 +28,18 @@ const App = () => {
         {/* protected routes */}
         <Route element={<PersistLogin />}>
           <Route element={<RequireAuth />}>
+            <Route path="*" element={<Navigate to="/dashboard" />}></Route>
+
             <Route element={<MainLayout />}>
-              <Route path="/" element={<Navigate to="/dashboard" />}>
-                <Route index path="/dashboard" element={<DashboardPage />} />
-                <Route path="/accounts" element={<AccountsPage />} />
-                <Route
-                  path="/accounts/detail/:accountId"
-                  element={<AccountDetail />}
-                />
-                <Route path="/transactions" element={<TransactionsPage />} />
-                <Route path="/import" element={<ImportPage />} />
-                <Route path="/deposits" element={<DepositsPage />} />
-              </Route>
+              <Route index path="/dashboard" element={<DashboardPage />} />
+              <Route path="/accounts" element={<AccountsPage />} />
+              <Route
+                path="/accounts/detail/:accountId"
+                element={<AccountDetail />}
+              />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/import" element={<ImportPage />} />
+              <Route path="/deposits" element={<DepositsPage />} />
             </Route>
           </Route>
         </Route>

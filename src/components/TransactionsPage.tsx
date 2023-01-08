@@ -58,7 +58,7 @@ const TransactionsPage = () => {
       setLoading(false);
     }
     controller.abort();
-  }, []);
+  }, [axiosPrivate]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -67,7 +67,7 @@ const TransactionsPage = () => {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [fetchData]);
 
   const handleSelectSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
@@ -83,7 +83,7 @@ const TransactionsPage = () => {
     const controller = new AbortController();
     setLoading(true);
     try {
-      const exportResponse = await exportTransactions(axiosPrivate, controller);
+      await exportTransactions(axiosPrivate, controller);
       setLoading(false);
     } catch (err) {
       setErrMessage('Error exporting data');
