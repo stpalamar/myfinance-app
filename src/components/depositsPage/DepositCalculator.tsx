@@ -9,7 +9,7 @@ import { AxiosError } from 'axios';
 import Deposit from '../../types/Deposit.type';
 
 import { DepositsContext } from '../DepositsPage';
-import { addDeposit } from '../../services/deposits.service';
+import { addDeposit, updateDeposit } from '../../services/deposits.service';
 
 import CustomInput from '../UI/CustomInput';
 import DatePickerField from '../UI/DatePickerField';
@@ -96,6 +96,35 @@ const DepositCalculator = () => {
         values as Deposit
       );
       setDeposits([...deposits, response]);
+      controller.abort();
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        if (!err.response) {
+          setErrMessage('No server response');
+        } else {
+          setErrMessage('Something went wrong');
+        }
+      }
+    }
+  };
+
+  const handleSaveDeposit = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    submitForm: any,
+    values: FormikValues
+  ) => {
+    submitForm();
+    const controller = new AbortController();
+    try {
+      const response = await updateDeposit(
+        axiosPrivate,
+        controller,
+        values as Deposit
+      );
+      const index = deposits.findIndex((deposit) => deposit.id === response.id);
+      const newDeposits = [...deposits];
+      newDeposits[index] = response;
+      setDeposits(newDeposits);
       controller.abort();
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -232,7 +261,11 @@ const DepositCalculator = () => {
             </Form.Group>
             <div className="d-flex flex-column">
               <div className="mt-3 d-flex">
-                <Button variant="primary" className="flex-fill me-1">
+                <Button
+                  variant="primary"
+                  className="flex-fill me-1"
+                  onClick={(e) => handleSaveDeposit(e, submitForm, values)}
+                >
                   Save
                 </Button>
                 <Button
