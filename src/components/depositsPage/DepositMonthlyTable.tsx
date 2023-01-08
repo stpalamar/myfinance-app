@@ -68,7 +68,7 @@ const DepositMonthlyTable = ({ deposit }: Props) => {
         {monthInterests.map((monthInterest: monthInterest, index) => {
           return (
             <tr key={index + 1}>
-              <td>{index + 1}</td>
+              <td className="">{index + 1}</td>
               <td>
                 {monthInterest.date.getMonth() + 1}/
                 {monthInterest.date.getFullYear()}

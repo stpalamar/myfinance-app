@@ -138,7 +138,7 @@ const DepositCalculator = () => {
   };
 
   return (
-    <div className="border rounded p-3 flex-fill">
+    <div className="p-1 flex-fill">
       <Formik
         validationSchema={schema}
         initialValues={initialValues}
@@ -156,7 +156,11 @@ const DepositCalculator = () => {
           isSubmitting,
           isValid,
         }) => (
-          <Form noValidate onSubmit={handleSubmit}>
+          <Form
+            noValidate
+            onSubmit={handleSubmit}
+            className="border rounded p-3"
+          >
             <CustomInput
               label="Name"
               name="name"
@@ -164,7 +168,7 @@ const DepositCalculator = () => {
               placeholder="Enter name"
             />
             <Form.Group>
-              <Form.Label>Initial deposit</Form.Label>
+              <Form.Label className="m-0">Initial deposit</Form.Label>
               <InputGroup>
                 <InputGroup.Text>$</InputGroup.Text>
                 <Form.Control
@@ -186,8 +190,8 @@ const DepositCalculator = () => {
                 </Form.Text>
               )}
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Monthly contribution</Form.Label>
+            <Form.Group className="mt-2">
+              <Form.Label className="m-0">Monthly contribution</Form.Label>
               <InputGroup>
                 <InputGroup.Text>$</InputGroup.Text>
                 <Form.Control
@@ -209,8 +213,8 @@ const DepositCalculator = () => {
                 </Form.Text>
               )}
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Start date</Form.Label>
+            <Form.Group className="mt-2">
+              <Form.Label className="m-0">Start date</Form.Label>
               <DatePickerField
                 name="startDate"
                 dateFormat="MMMM, yyyy"
@@ -221,8 +225,8 @@ const DepositCalculator = () => {
                 <Form.Text className="text-danger">Choose start date</Form.Text>
               )}
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Over a period of</Form.Label>
+            <Form.Group className="mt-2">
+              <Form.Label className="m-0">Over a period of</Form.Label>
               <InputGroup>
                 <Form.Control
                   type="number"
@@ -238,8 +242,8 @@ const DepositCalculator = () => {
                 <Form.Text className="text-danger">{errors.months}</Form.Text>
               )}
             </Form.Group>
-            <Form.Group>
-              <Form.Label>APY</Form.Label>
+            <Form.Group className="mt-2">
+              <Form.Label className="m-0">APY</Form.Label>
               <InputGroup>
                 <Form.Control
                   type="number"
