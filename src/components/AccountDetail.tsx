@@ -8,14 +8,13 @@ import { getAccounts } from '../services/accounts.service';
 import Transaction from '../types/Transaction.type';
 import Account from '../types/Account.type';
 
-import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
-
 import TransactionsList, {
   calculateSum,
 } from './transactionsPage/TransactionsList';
 import TransactionEditModal from './transactionsPage/TransactionEditModal';
 import AccountEditModal from './accountsPage/AccountEditModal';
 import AccountDeleteModal from './accountsPage/AccountDeleteModal';
+import AccountBalanceChart from './accountsPage/AccountBalanceChart';
 
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
@@ -167,7 +166,9 @@ const AccountDetail = () => {
               <span>TODAY</span>
               <span className="fw-semibold fs-4">{todayTransactionsSum}</span>
             </div>
-            <div>CHART...</div>
+            <div style={{ height: '300px' }}>
+              <AccountBalanceChart transactions={transactions} />
+            </div>
           </div>
         )}
       </Container>
