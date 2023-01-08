@@ -36,8 +36,8 @@ const Menu = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to=".">
-              Home
+            <Nav.Link as={Link} to="dashboard">
+              Dashboard
             </Nav.Link>
             <Nav.Link as={Link} to="accounts">
               Accounts
@@ -45,11 +45,11 @@ const Menu = () => {
             <Nav.Link as={Link} to="transactions">
               Transactions
             </Nav.Link>
-            <Nav.Link as={Link} to="import">
-              Import
-            </Nav.Link>
             <Nav.Link as={Link} to="deposits">
               Deposits
+            </Nav.Link>
+            <Nav.Link as={Link} to="import">
+              Import
             </Nav.Link>
           </Nav>
           <Dropdown>

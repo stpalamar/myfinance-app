@@ -53,6 +53,17 @@ const ImportPage = () => {
     <Container className="d-flex container-fluid flex-row justify-content-center">
       <div className="border p-4 m-4 rounded d-flex flex-column">
         <div>{errMessage && <Alert variant="danger">{errMessage}</Alert>}</div>
+        <div>
+          <Alert>
+            <span>
+              You can upload an excel file with transactions to import them.
+            </span>
+            <ul className="m-0">
+              <li>File must be ".xlsx"</li>
+              <li>Name of workbook will be name of created account</li>
+            </ul>
+          </Alert>
+        </div>
         <Formik
           initialValues={{ file: null }}
           onSubmit={handleImport}

@@ -146,7 +146,7 @@ const TransactionsPage = () => {
                 + Add
               </Button>
               <Button variant="secondary" onClick={handleExport}>
-                Export to Excel
+                <span>Export all to Excel</span>
               </Button>
             </div>
             <div className="d-flex flex-fill flex-column">
