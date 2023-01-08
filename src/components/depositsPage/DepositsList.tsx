@@ -1,15 +1,12 @@
-import Deposit from '../../types/Deposit.type';
+import { useContext } from 'react';
 
+import { DepositsContext } from '../DepositsPage';
 import DepositItem from './DepositItem';
 
 import Stack from 'react-bootstrap/Stack';
 
-type Props = {
-  deposits: Deposit[];
-};
-
-const DepositsList = ({ deposits }: Props) => {
-  console.log(deposits);
+const DepositsList = () => {
+  const { deposits } = useContext(DepositsContext);
   return (
     <>
       <div className="text-center">
@@ -17,7 +14,7 @@ const DepositsList = ({ deposits }: Props) => {
       </div>
       <Stack gap={2}>
         {deposits.map((deposit) => {
-          return <DepositItem deposit={deposit} />;
+          return <DepositItem key={deposit.id} deposit={deposit} />;
         })}
       </Stack>
     </>

@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { Formik, FormikValues } from 'formik';
 import * as yup from 'yup';
@@ -8,6 +8,7 @@ import { AxiosError } from 'axios';
 
 import Deposit from '../../types/Deposit.type';
 
+import { DepositsContext } from '../DepositsPage';
 import { addDeposit } from '../../services/deposits.service';
 
 import CustomInput from '../UI/CustomInput';
@@ -19,7 +20,8 @@ import Button from 'react-bootstrap/Button';
 import DepositMonthlyTable from './DepositMonthlyTable';
 
 const DepositCalculator = () => {
-  const [deposit, setDeposit] = useState(null as null | Deposit);
+  const { deposits, setDeposits, selectedDeposit, setSelectedDeposit } =
+    useContext(DepositsContext);
   const [errMessage, setErrMessage] = useState<string>('');
   const axiosPrivate = useAxiosPrivate();
 
@@ -47,17 +49,29 @@ const DepositCalculator = () => {
       .max(120, 'Max value is 120'),
   });
 
-  const initialValues = {
-    name: '',
-    initialDeposit: 0,
-    monthlyContribution: 0,
-    interestRate: 0,
-    startDate: new Date(Date.now()),
-    months: 0,
-  };
+  const initialValues =
+    selectedDeposit != null
+      ? {
+          id: selectedDeposit.id,
+          name: selectedDeposit.name,
+          initialDeposit: selectedDeposit.initialDeposit,
+          monthlyContribution: selectedDeposit.monthlyContribution,
+          interestRate: selectedDeposit.interestRate,
+          startDate: selectedDeposit.startDate,
+          months: selectedDeposit.months,
+        }
+      : {
+          name: '',
+          initialDeposit: 0,
+          monthlyContribution: 0,
+          interestRate: 0,
+          startDate: new Date(Date.now()),
+          months: 0,
+        };
+  console.log(initialValues);
 
   const handleCalculate = (values: FormikValues, formikBag: any) => {
-    setDeposit({
+    setSelectedDeposit({
       id: values.id,
       name: values.name,
       initialDeposit: values.initialDeposit,
@@ -76,7 +90,12 @@ const DepositCalculator = () => {
     submitForm();
     const controller = new AbortController();
     try {
-      await addDeposit(axiosPrivate, controller, values as Deposit);
+      const response = await addDeposit(
+        axiosPrivate,
+        controller,
+        values as Deposit
+      );
+      setDeposits([...deposits, response]);
       controller.abort();
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -95,6 +114,7 @@ const DepositCalculator = () => {
         validationSchema={schema}
         initialValues={initialValues}
         onSubmit={handleCalculate}
+        enableReinitialize
       >
         {({
           values,
@@ -232,10 +252,10 @@ const DepositCalculator = () => {
           </Form>
         )}
       </Formik>
-      {deposit && (
+      {selectedDeposit && (
         <div className="mt-3">
           <h4>Monthly Schedule</h4>
-          <DepositMonthlyTable deposit={deposit} />
+          <DepositMonthlyTable deposit={selectedDeposit} />
         </div>
       )}
     </div>
