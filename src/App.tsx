@@ -13,7 +13,6 @@ import Signup from './components/authentication/Signup';
 import Login from './components/authentication/Login';
 import PersistLogin from './components/PersistLogin';
 import RequireAuth from './components/RequireAuth';
-import LoadingSpinnerCenter from './components/UI/LoadingSpinnerCenter';
 
 const App = () => {
   document.title = 'MyFinance';

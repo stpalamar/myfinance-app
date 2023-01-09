@@ -8,6 +8,8 @@ import { getAccounts } from '../services/accounts.service';
 import Transaction from '../types/Transaction.type';
 import Account from '../types/Account.type';
 
+import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
+
 import TransactionsList, {
   calculateSum,
 } from './transactionsPage/TransactionsList';
@@ -17,6 +19,7 @@ import AccountDeleteModal from './accountsPage/AccountDeleteModal';
 import AccountBalanceChart from './accountsPage/AccountBalanceChart';
 
 import Container from 'react-bootstrap/Container';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 
@@ -104,99 +107,111 @@ const AccountDetail = () => {
   };
 
   return (
-    <div className="d-flex flex-column">
-      <div className="d-flex justify-content-center">
-        <Container className="mx-0 my-4 px-0">
-          <div className="mx-0 border rounded">
-            <div className="bg-light d-flex justify-content-between p-4">
-              <div className="d-flex">
-                <h3>Account Detail</h3>
+    <>
+      {loading ? (
+        <LoadingSpinnerCenter />
+      ) : errMessage ? (
+        <Alert variant="danger">{errMessage}</Alert>
+      ) : (
+        <div className="d-flex flex-column">
+          <div className="d-flex justify-content-center">
+            <Container className="mx-0 my-4 px-0">
+              <div className="mx-0 border rounded">
+                <div className="bg-light d-flex justify-content-between p-4">
+                  <div className="d-flex">
+                    <h3>Account Detail</h3>
+                  </div>
+                  <div className="d-flex ">
+                    <Button className="mx-2" onClick={handleEditAccount}>
+                      Edit
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteAccount}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+                <div className="d-flex flex-column p-4">
+                  <span>Name</span>
+                  <span className="fw-semibold fs-5">
+                    {currentAccount.name}
+                  </span>
+                </div>
+                <div className="border-top px-4 py-3">
+                  <Nav
+                    defaultActiveKey="balance"
+                    variant="pills"
+                    onSelect={(eventKey: any) => setTab(eventKey)}
+                  >
+                    <Nav.Item>
+                      <Nav.Link eventKey="balance">Balance</Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                      <Nav.Link eventKey="transactions">Transactions</Nav.Link>
+                    </Nav.Item>
+                  </Nav>
+                </div>
               </div>
-              <div className="d-flex ">
-                <Button className="mx-2" onClick={handleEditAccount}>
-                  Edit
+            </Container>
+          </div>
+          <Container className="p-0">
+            {tab === 'transactions' && (
+              <>
+                <TransactionsList
+                  transactions={transactions}
+                  accounts={accounts}
+                  sortBy={'date-DESC'}
+                  fetchData={fetchData}
+                />
+                <Button
+                  className="my-3 mx-2"
+                  onClick={handleAddTransaction}
+                  variant="success"
+                >
+                  + Add
                 </Button>
-                <Button variant="danger" onClick={handleDeleteAccount}>
-                  Delete
-                </Button>
+              </>
+            )}
+            {tab === 'balance' && (
+              <div className="d-flex flex-column p-4 bg-light rounded">
+                <div className="d-flex flex-column mb-3">
+                  <span>TODAY</span>
+                  <span className="fw-semibold fs-4">
+                    {todayTransactionsSum}
+                  </span>
+                </div>
+                <div style={{ height: '300px' }}>
+                  <AccountBalanceChart transactions={transactions} />
+                </div>
               </div>
-            </div>
-            <div className="d-flex flex-column p-4">
-              <span>Name</span>
-              <span className="fw-semibold fs-5">{currentAccount.name}</span>
-            </div>
-            <div className="border-top px-4 py-3">
-              <Nav
-                defaultActiveKey="balance"
-                variant="pills"
-                onSelect={(eventKey: any) => setTab(eventKey)}
-              >
-                <Nav.Item>
-                  <Nav.Link eventKey="balance">Balance</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="transactions">Transactions</Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </div>
-          </div>
-        </Container>
-      </div>
-      <Container className="p-0">
-        {tab === 'transactions' && (
-          <>
-            <TransactionsList
-              transactions={transactions}
-              accounts={accounts}
-              sortBy={'date-DESC'}
-              fetchData={fetchData}
-            />
-            <Button
-              className="my-3 mx-2"
-              onClick={handleAddTransaction}
-              variant="success"
-            >
-              + Add
-            </Button>
-          </>
-        )}
-        {tab === 'balance' && (
-          <div className="d-flex flex-column p-4 bg-light rounded">
-            <div className="d-flex flex-column mb-3">
-              <span>TODAY</span>
-              <span className="fw-semibold fs-4">{todayTransactionsSum}</span>
-            </div>
-            <div style={{ height: '300px' }}>
-              <AccountBalanceChart transactions={transactions} />
-            </div>
-          </div>
-        )}
-      </Container>
+            )}
+          </Container>
 
-      <AccountDeleteModal
-        show={deleteAccountModalShow}
-        onHide={() => setAccountDeleteModalShow(false)}
-        account={currentAccount}
-        fetchData={fetchData}
-      />
+          <AccountDeleteModal
+            show={deleteAccountModalShow}
+            onHide={() => setAccountDeleteModalShow(false)}
+            account={currentAccount}
+            fetchData={fetchData}
+          />
 
-      <AccountEditModal
-        show={editAccountModalShow}
-        onHide={() => setAccountEditModalShow(false)}
-        account={currentAccount}
-        fetchData={fetchData}
-        isAdding={false}
-      />
+          <AccountEditModal
+            show={editAccountModalShow}
+            onHide={() => setAccountEditModalShow(false)}
+            account={currentAccount}
+            fetchData={fetchData}
+            isAdding={false}
+          />
 
-      <TransactionEditModal
-        show={editTransactionModalShow}
-        onHide={() => setTransactionEditModalShow(false)}
-        accounts={accounts}
-        transaction={null}
-        fetchData={fetchData}
-        isAdding={true}
-      />
-    </div>
+          <TransactionEditModal
+            show={editTransactionModalShow}
+            onHide={() => setTransactionEditModalShow(false)}
+            accounts={accounts}
+            transaction={null}
+            fetchData={fetchData}
+            isAdding={true}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

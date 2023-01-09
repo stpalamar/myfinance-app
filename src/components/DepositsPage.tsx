@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  createContext,
-} from 'react';
+import { useState, useEffect, useCallback, createContext } from 'react';
 
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import Deposit from '../types/Deposit.type';
@@ -16,6 +10,7 @@ import DepositsList from './depositsPage/DepositsList';
 import LoadingSpinnerCenter from './UI/LoadingSpinnerCenter';
 
 import Container from 'react-bootstrap/Container';
+import Alert from 'react-bootstrap/Alert';
 
 interface DepositsContext {
   deposits: Deposit[];
@@ -67,6 +62,8 @@ const DepositsPage = () => {
     <>
       {loading ? (
         <LoadingSpinnerCenter />
+      ) : errMessage ? (
+        <Alert variant="danger">{errMessage}</Alert>
       ) : (
         <DepositsContext.Provider
           value={
