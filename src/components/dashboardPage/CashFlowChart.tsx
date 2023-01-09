@@ -50,7 +50,7 @@ const CashFlowChart = ({ transactions }: Props) => {
     return getIncomeLastMonth() - getExpenseLastMonth();
   };
   return (
-    <Card className="flex-fill mx-2">
+    <Card className="flex-fill mx-2" style={{ width: '250px' }}>
       <Card.Header>Cash flow</Card.Header>
       <Card.Body className="p-4">
         <div className="d-flex flex-column">
