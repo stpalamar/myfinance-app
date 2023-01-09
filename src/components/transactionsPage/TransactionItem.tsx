@@ -63,11 +63,11 @@ const TransactionItem = ({
             <div className="d-flex ms-auto">
               {transaction.type ? (
                 <span className="fw-semibold transaction-income">
-                  {transaction.amount}
+                  {transaction.amount}$
                 </span>
               ) : (
                 <span className="fw-semibold transaction-expense">
-                  {-transaction.amount}
+                  {-transaction.amount}$
                 </span>
               )}
             </div>

@@ -351,13 +351,13 @@ const TransactionEditModal = ({
                       {errors.description}
                     </Form.Control.Feedback>
                   </Form.Group>
-                  <pre style={{ margin: '0 auto' }}>
+                  {/* <pre style={{ margin: '0 auto' }}>
                     {JSON.stringify(
                       { ...values, ...errors, isValid, isSubmitting },
                       null,
                       2
                     )}
-                  </pre>
+                  </pre> */}
                 </Modal.Body>
                 {dirty && (
                   <Modal.Footer className="d-flex justify-content-center">

@@ -68,7 +68,6 @@ const DepositCalculator = () => {
           startDate: new Date(Date.now()),
           months: 0,
         };
-  console.log(initialValues);
 
   const handleCalculate = (values: FormikValues, formikBag: any) => {
     setSelectedDeposit({

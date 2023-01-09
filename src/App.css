@@ -61,3 +61,28 @@ input:hover {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
+
+.date {
+  font-size: 0.8em;
+  color: #7f8fa4;
+}
+
+.last-transactions {
+  max-height: 1000px;
+  overflow: hidden;
+}
+
+.progress .progress-bar {
+  animation-name: animateBar;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 0.4s;
+}
+@keyframes animateBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
