@@ -57,8 +57,8 @@ const DashboardPage = () => {
       ) : errMessage ? (
         <Alert variant="danger">{errMessage}</Alert>
       ) : (
-        <Container className="mt-3">
-          <div className="d-flex flex-row justify-content-between">
+        <Container className="mt-5">
+          <div className="d-flex flex-lg-row flex-column justify-content-lg-between align-items-stretch">
             <CashFlowChart transactions={transactions} />
             <LastTransactions transactions={transactions} />
             <BalanceTrendChart transactions={transactions} />

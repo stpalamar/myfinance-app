@@ -8,11 +8,11 @@ type Props = {
 
 const LastTransactions = ({ transactions }: Props) => {
   return (
-    <Card className="flex-fill mx-2">
+    <Card className="w-100 m-2">
       <Card.Header>Last transactions</Card.Header>
       <Card.Body className="p-4">
         <ul className="list-group list-group-flush last-transactions">
-          {transactions.slice(0, 10).map((transaction) => (
+          {transactions.slice(0, 5).map((transaction) => (
             <li
               key={transaction.id}
               className="d-flex flex-row justify-content-between list-group-item"

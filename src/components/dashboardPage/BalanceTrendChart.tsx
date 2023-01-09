@@ -136,7 +136,7 @@ const BalanceTrendChart = ({ transactions }: Props) => {
   ChartJS.register(Filler);
 
   return (
-    <Card className="flex-fill mx-2" style={{ width: '250px' }}>
+    <Card className="w-100 m-2">
       <Card.Header>Balance trend</Card.Header>
       <Card.Body className="p-4">
         <Line options={options} data={data} />
