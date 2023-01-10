@@ -5,6 +5,7 @@ import Account from '../../types/Account.type';
 
 import TransactionEditModal from './TransactionEditModal';
 import TransactionsDeleteModal from './TransactionsDeleteModal';
+import TransactionsDuplicateModal from './TransactionDuplicateModal';
 
 import CustomToggle from '../UI/CustomToggle';
 
@@ -30,6 +31,7 @@ const TransactionItem = ({
 }: Props) => {
   const [editModalShow, setEditModalShow] = useState(false);
   const [deleteModalShow, setDeleteModalShow] = useState(false);
+  const [duplicateModalShow, setDuplicateModalShow] = useState(false);
 
   const handleTransactionClick = () => {
     setEditModalShow(true);
@@ -37,6 +39,10 @@ const TransactionItem = ({
 
   const handleDeleteClick = () => {
     setDeleteModalShow(true);
+  };
+
+  const handleDuplicateClick = () => {
+    setDuplicateModalShow(true);
   };
 
   return (
@@ -76,6 +82,9 @@ const TransactionItem = ({
             <Dropdown.Toggle as={CustomToggle}></Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={handleDeleteClick}>Delete</Dropdown.Item>
+              <Dropdown.Item onClick={handleDuplicateClick}>
+                Duplicate
+              </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Card.Body>
@@ -92,6 +101,12 @@ const TransactionItem = ({
         show={deleteModalShow}
         onHide={() => setDeleteModalShow(false)}
         transactions={[transaction]}
+        fetchData={fetchData}
+      />
+      <TransactionsDuplicateModal
+        show={duplicateModalShow}
+        onHide={() => setDuplicateModalShow(false)}
+        transaction={transaction}
         fetchData={fetchData}
       />
     </>

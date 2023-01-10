@@ -57,3 +57,14 @@ export const deleteTransaction = async (
   });
   return true;
 };
+
+export const duplicateTransaction = async (
+  axiosPrivate: AxiosInstance,
+  controller: AbortController,
+  transactionId: string
+) => {
+  await axiosPrivate.put(API_URL + '/' + transactionId, {
+    signal: controller.signal,
+  });
+  return true;
+};
