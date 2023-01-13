@@ -32,14 +32,14 @@ const TransactionsDeleteModal = ({
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const controller = new AbortController();
     try {
       await Promise.all(
-        transactions.map((transaction) =>
-          deleteTransaction(axiosPrivate, controller, transaction.id)
-        )
+        transactions.map(async (transaction) => {
+          const controller = new AbortController();
+          await deleteTransaction(axiosPrivate, controller, transaction.id);
+          controller.abort();
+        })
       );
-      controller.abort();
       onHide();
       fetchData();
       setIsDeleting(false);
